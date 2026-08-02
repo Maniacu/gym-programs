@@ -1,0 +1,124 @@
+{
+  "schema": 1,
+  "version": "3.50.0+ota.msbjifzi",
+  "appVersion": "3.50.0",
+  "minNative": 97,
+  "builtAt": "2026-08-02T08:30:16.686Z",
+  "files": [
+    {
+      "path": "index.html",
+      "sha256": "8ff942e4c6f48099c0c5e7991123b6a8bf5434cef3ef4345e265f9729d22d6d3",
+      "bytes": 7629
+    },
+    {
+      "path": "css/app.css",
+      "sha256": "fdef6057bcb2e0d981c4209b7018ac9c9b747fa5d0d5adf3cee200f0583b7ce0",
+      "bytes": 88501
+    },
+    {
+      "path": "js/app.js",
+      "sha256": "f9f8b89e89b7ad3f011160e37bbaad7df3e1703a1def2071fc5e86cde48715af",
+      "bytes": 7139
+    },
+    {
+      "path": "js/core/00-util.js",
+      "sha256": "9a3627ea3eff96d84184165d1c91fd236cf69fe73b415ad755158da228cbe6f6",
+      "bytes": 29563
+    },
+    {
+      "path": "js/core/01-native.js",
+      "sha256": "189b8dba4315fab68ddfa402fec802ba4ad80b167c1a3a43d33c747bdb66fe0b",
+      "bytes": 14929
+    },
+    {
+      "path": "js/core/02-state.js",
+      "sha256": "b00c84c02d86ccf89a51052d4d27573353800c24dfbe1e05e427fda974e5d3ec",
+      "bytes": 19215
+    },
+    {
+      "path": "js/core/02-storage.js",
+      "sha256": "3b04f1d4f0ed46e0a06b5a9c85ad6909629a19f72226bf01db307ba8b4729357",
+      "bytes": 10297
+    },
+    {
+      "path": "js/core/03-programs.js",
+      "sha256": "323f3eadb3fbe63fb60c5360c8fe2bbc12bb3b8cfb467609e1e6d084db160815",
+      "bytes": 36400
+    },
+    {
+      "path": "js/core/04-history.js",
+      "sha256": "72985cb40ac2052788cf8def75233a2b93a39b07084163619f3dfa33a71c1ebc",
+      "bytes": 12056
+    },
+    {
+      "path": "js/features/09-smart-trainer.js",
+      "sha256": "68287e6f3cd904819b5208c0b2ae6c591e340694b714dd46e87a6bb5280ffc9e",
+      "bytes": 125792
+    },
+    {
+      "path": "js/features/10-log.js",
+      "sha256": "f9937568d36c044331021a7857fe1bee7eb953deb5c93a497c0fb659b49b59e8",
+      "bytes": 96477
+    },
+    {
+      "path": "js/features/11-swap.js",
+      "sha256": "003c4e90c5d22bd7497a577c4806a05ea3a5eb8e84760a84b39fb826b2eda1cb",
+      "bytes": 13871
+    },
+    {
+      "path": "js/features/12-coach.js",
+      "sha256": "887a9fca729e831b03dae6bdcc9566e74b298e8fa27cd5bdd1201935a48b0a73",
+      "bytes": 36946
+    },
+    {
+      "path": "js/features/13-backup.js",
+      "sha256": "e10dba090c74866edbe5f8c2e246c0621c99a7b0c111b671567c4420d8e999a7",
+      "bytes": 22027
+    },
+    {
+      "path": "js/features/14-onboarding.js",
+      "sha256": "3b91e862ca58c3e04a1edad421e3346d819fabebc5351b487be4f85d68a94da9",
+      "bytes": 9767
+    },
+    {
+      "path": "js/lib/library.js",
+      "sha256": "91393c98528437b3a1f68f5e34b8a47f1035f518a48dcd9ecd9bec80a93958cd",
+      "bytes": 705436
+    },
+    {
+      "path": "js/lib/program.js",
+      "sha256": "4716182584333cf4ad2bb1ae8bbfeca66f70faccd5174296fa92b51e63fc33e2",
+      "bytes": 354927
+    },
+    {
+      "path": "js/views/view-exercises.js",
+      "sha256": "fdcd8ace2ada48e99d92556db0020f8b757c114145eba50628d10a059091afd6",
+      "bytes": 10974
+    },
+    {
+      "path": "js/views/view-more.js",
+      "sha256": "3d7f252925f9065c4f4900719e1255eda47472c31a6226dec28418346c5e677f",
+      "bytes": 28630
+    },
+    {
+      "path": "js/views/view-plan.js",
+      "sha256": "bdaf708330c4c365dee4b8799a3b3ed5a5654cdc9b9536f13847bba3cb4e8e67",
+      "bytes": 50942
+    },
+    {
+      "path": "js/views/view-recovery.js",
+      "sha256": "2eb0180d1cede36786e852aaaee0066e658ea475148c54f3c510ab66d13c99df",
+      "bytes": 7667
+    },
+    {
+      "path": "js/views/view-stats.js",
+      "sha256": "17249d24dc8884c3f07cd8b07d172695db5395ba021317ecf25b698774d1c0a2",
+      "bytes": 41153
+    },
+    {
+      "path": "js/views/view-workouts.js",
+      "sha256": "f38b6f466aea86c48d1a5641d3c03eb789dd6c0a10aa5624609b05351e17e031",
+      "bytes": 14241
+    }
+  ]
+}
