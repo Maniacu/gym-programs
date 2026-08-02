@@ -78,6 +78,9 @@ if(window.__durableBootPromise&&typeof window.__durableBootPromise.then==="funct
 else finishStateBootstrap();
 /* background refresh on launch (no-op unless the user has set an OTA source URL) */
 setTimeout(()=>{ try{ fetchPrograms(false); }catch(e){} },800);
+/* same for the app's own code — runs after the boot-ok watchdog below has had time to fire,
+   so a bundle is never fetched on top of a launch that has not yet proven itself */
+setTimeout(()=>{ try{ otaAutoCheck(); }catch(e){} },9000);
 /* Refresh already-authorized Health Connect recovery observations quietly. Permissions
    are never requested here; the user explicitly connects them in Settings. */
 setTimeout(()=>{

@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.msc67a3v",
+  "version": "3.52.0+ota.msc7k277",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/msc67a3v",
-  "builtAt": "2026-08-02T19:05:27.019Z",
+  "filesDir": "files/msc7k277",
+  "builtAt": "2026-08-02T19:43:22.915Z",
   "files": [
     {
       "path": "index.html",
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "b08727287c7cc66747e8d8720cc2568d401b1091944d6bb1a4e9598032466da9",
-      "bytes": 365285
+      "sha256": "270edda17c081f82b88d724af373d00ba45e82c6aae714b1fa98ddf5d936adfc",
+      "bytes": 366950
     },
     {
       "path": "js/views/view-exercises.js",
