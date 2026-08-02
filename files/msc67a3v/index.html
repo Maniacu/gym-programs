@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'none'; media-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+<title>Gym Tracker</title>
+<link rel="stylesheet" href="css/app.css">
+<script>try{if(window.GymNative&&GymNative.readLegacyWebPreferences){var __legacyPrefs=GymNative.readLegacyWebPreferences();if(__legacyPrefs){var __legacyMap=JSON.parse(__legacyPrefs);Object.keys(__legacyMap).forEach(function(k){localStorage.setItem(k,String(__legacyMap[k]));});GymNative.acknowledgeLegacyWebPreferences();}}}catch(e){}</script>
+<script>try{var __t=localStorage.getItem("gymTheme");if(!__t){__t="dark";localStorage.setItem("gymTheme","dark");}document.documentElement.dataset.theme=__t;}catch(e){document.documentElement.dataset.theme="dark";}</script>
+</head>
+<body>
+
+<div class="view" id="v-plan"></div>
+<div class="view" id="v-recovery"></div>
+<div class="view" id="v-workouts"></div>
+<div class="view" id="v-exercises"></div>
+<div class="view" id="v-stats"></div>
+<div class="view" id="v-more"></div>
+
+<nav class="bnav" id="bnav">
+  <button data-v="plan"><span class="ic">🏋</span>Train</button>
+  <button data-v="recovery"><span class="ic">♥</span>Recovery</button>
+  <button data-v="stats"><span class="ic">📈</span>Progress</button>
+  <button data-v="workouts"><span class="ic">📋</span>Plan</button>
+  <button data-v="coach"><span class="ic">✦</span>Coach</button>
+</nav>
+
+<div class="logview" id="logView">
+  <div class="loghd"><button class="bk" onclick="closeLog()">‹</button><div class="ti"><div class="a" id="logTitle">Workout</div><div class="b" id="logSub"></div></div><div class="sessclk" id="sessClock">0:00</div></div>
+  <div class="logbody" id="logBody"></div>
+  <div class="logfoot"><button class="btn" id="finishBtn" onclick="finishWorkout()">Finish Workout ✓</button></div>
+</div>
+
+<div class="chatview" id="chatView">
+  <div class="loghd"><button class="bk" onclick="closeChat()">‹</button><div class="ti"><div class="a">✦ AI Coach</div><div class="b" id="chatSub">Powered by Claude</div></div><button class="bk" onclick="chatKeyMenu()">⋯</button></div>
+  <div class="logbody" id="chatBody"></div>
+  <div class="logfoot" id="chatFoot"></div>
+</div>
+
+<div class="timer" id="timer"><span class="lb">REST</span><span class="tt" id="timerT">1:30</span><span class="tact"><button class="add" id="timerSub">−15s</button><button class="add" id="timerAdd">+15s</button><button id="timerSkip">Skip</button></span></div>
+<div class="toast" id="toast"></div>
+
+<dialog id="inDlg"><div class="dh"><span id="inTitle">Input</span><button class="x" onclick="inDlg.close()">×</button></div><div class="db"><div class="fld"><label id="inLabel"></label><input id="inVal" style="text-align:left;font-weight:500;padding:0 12px"></div><div class="btnrow"><button id="inOk">OK</button></div></div></dialog>
+<dialog id="swapDlg"><div class="dh"><span>Swap exercise</span><button class="x" onclick="swapDlg.close()">×</button></div><div class="db" id="swapBody"></div></dialog>
+<dialog id="chartDlg"><div class="dh"><span id="chartTitle">Progress</span><button class="x" onclick="chartDlg.close()">×</button></div><div class="db" id="chartBody"></div></dialog>
+<dialog id="plateDlg"><div class="dh"><span>Plate calculator</span><button class="x" onclick="plateDlg.close()">×</button></div><div class="db" id="plateBody"></div></dialog>
+<dialog id="detDlg"><div class="dh"><span id="detTitle">Exercise</span><button class="x" onclick="detDlg.close()">×</button></div><div class="db" id="detBody"></div></dialog>
+<dialog id="cuesDlg"><div class="dh"><span>Form cues</span><button class="x" onclick="cuesDlg.close()">×</button></div><div class="db" id="cuesBody"></div></dialog>
+<dialog id="sumDlg"><div class="dh"><span>Workout complete 💪</span><button class="x" onclick="sumDlg.close()">×</button></div><div class="db" id="sumBody"></div></dialog>
+<dialog id="bkDlg"><div class="dh"><span>Backup &amp; Restore</span><button class="x" onclick="bkDlg.close()">×</button></div><div class="db" id="bkBody"></div></dialog>
+<dialog id="bwDlg"><div class="dh"><span>Bodyweight</span><button class="x" onclick="bwDlg.close()">×</button></div><div class="db" id="bwBody"></div></dialog>
+<dialog id="prioDlg"><div class="dh"><span>Priorities</span><button class="x" onclick="prioDlg.close()">×</button></div><div class="db" id="prioBody"></div></dialog>
+<dialog id="lvlDlg"><div class="dh"><span>Bench Angle Level</span><button class="x" onclick="closeLevel()">×</button></div>
+  <div class="db">
+    <div style="font-size:13px;color:#cfd8e3">Rest the phone <b>flat against the bench back-pad</b>, screen up. Updates live.<br><span style="color:var(--muted);font-size:12px">For incline chest, ~30° hits the upper chest most — past 45° the front delts take over (Rodríguez-Ridao et al., 2020).</span></div>
+    <svg viewBox="0 0 240 138" style="width:100%;margin-top:8px"><path id="lvlArc" fill="none" stroke="#43434c" stroke-width="2"/><g id="lvlTicks"></g>
+      <line id="lvlTarget" x1="30" y1="118" x2="30" y2="118" stroke="var(--gold)" stroke-width="3" stroke-dasharray="5 4"/>
+      <line id="lvlNeedle" x1="30" y1="118" x2="30" y2="118" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/><circle cx="30" cy="118" r="6" fill="#f3f5f8"/></svg>
+    <div style="text-align:center;font-size:54px;font-weight:800"><span id="lvlAngle">--</span><span style="font-size:28px;color:var(--muted)">°</span></div>
+    <div id="lvlStatus" style="text-align:center;font-weight:700;color:var(--muted)">Reading sensor…</div>
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px"><span>Target</span><button id="tDec" class="mvbtn">−</button><span id="tVal" style="font-size:20px;font-weight:800;min-width:34px;text-align:center">30</span><span>°</span><button id="tInc" class="mvbtn">+</button></div>
+    <div id="lvlMsg" style="text-align:center;color:var(--muted);font-size:12px;margin-top:10px;min-height:16px"></div>
+  </div></dialog>
+
+<div class="onb" id="onb"><div class="onbc"><div class="onbp"><div class="onbb" id="onbBar"></div></div><div class="onbs" id="onbStep"></div><div class="onbn"><button class="bk" id="onbBack">Back</button><button class="nx" id="onbNext">Continue</button></div></div></div>
+
+<script src="js/lib/library.js"></script>
+<script src="js/lib/program.js"></script>
+<script src="js/core/00-util.js"></script>
+<script src="js/core/01-native.js"></script>
+<script src="js/core/02-state.js"></script>
+<script src="js/core/02-storage.js"></script>
+<script src="js/core/03-programs.js"></script>
+<script src="js/core/04-history.js"></script>
+<script src="js/features/09-smart-trainer.js"></script>
+<script src="js/features/10-log.js"></script>
+<script src="js/features/11-swap.js"></script>
+<script src="js/features/12-coach.js"></script>
+<script src="js/features/13-backup.js"></script>
+<script src="js/features/14-onboarding.js"></script>
+<script src="js/views/view-plan.js"></script>
+<script src="js/views/view-recovery.js"></script>
+<script src="js/views/view-workouts.js"></script>
+<script src="js/views/view-exercises.js"></script>
+<script src="js/views/view-stats.js"></script>
+<script src="js/views/view-more.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

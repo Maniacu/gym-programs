@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.msc5tt4d",
+  "version": "3.52.0+ota.msc67a3v",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/msc5tt4d",
-  "builtAt": "2026-08-02T18:54:58.477Z",
+  "filesDir": "files/msc67a3v",
+  "builtAt": "2026-08-02T19:05:27.019Z",
   "files": [
     {
       "path": "index.html",
@@ -43,8 +43,8 @@
     },
     {
       "path": "js/core/03-programs.js",
-      "sha256": "323f3eadb3fbe63fb60c5360c8fe2bbc12bb3b8cfb467609e1e6d084db160815",
-      "bytes": 36400
+      "sha256": "ecfb729ad625991a2a344682efa3acab23706ae813d9a5550ddab29008bd7f42",
+      "bytes": 36435
     },
     {
       "path": "js/core/04-history.js",
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "4716182584333cf4ad2bb1ae8bbfeca66f70faccd5174296fa92b51e63fc33e2",
-      "bytes": 354927
+      "sha256": "b08727287c7cc66747e8d8720cc2568d401b1091944d6bb1a4e9598032466da9",
+      "bytes": 365285
     },
     {
       "path": "js/views/view-exercises.js",
