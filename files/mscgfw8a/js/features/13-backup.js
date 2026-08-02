@@ -158,12 +158,15 @@ async function otaAutoCheck(){
   try{
     const st=otaStatus(); if(!st.url)return;
     const last=+(localStorage.getItem("__otachk")||0);
-    /* Back off to 6-hourly once a bundle is actually installed, but keep retrying every minute
-       until then. Otherwise the very first check after setting a URL — the one the user is
-       waiting on — can be swallowed by a throttle a previous failed attempt consumed, and the
-       channel looks dead for six hours. The manifest is ~4 KB, so frequent retries cost
-       nothing until an update is in place. */
-    const wait=st.version?6*3600*1000:60*1000;
+    /* 15 minutes, not hours. The first version backed off to 6-hourly once a bundle was
+       installed, which meant a published fix could sit unfetched for most of a day — the user
+       hit exactly that: a corrected exercise photo was live for hours while their phone kept
+       showing the old one, and the only way to get it was to tap Check for updates. For a
+       channel whose entire purpose is shipping fixes quickly that is far too slow, and the
+       cost of being wrong is one stale-looking app. The check is a ~4 KB manifest fetch, so
+       effectively-every-launch is cheap; the 15-minute floor only stops rapid app switching
+       from hammering it. Still 60s while nothing is installed, so first-time setup is snappy. */
+    const wait=st.version?15*60*1000:60*1000;
     if(Date.now()-last<wait){ console.log("[ota] auto-check skipped (throttled)"); return; }
     localStorage.setItem("__otachk",String(Date.now()));
     const r=await otaCheckNative();

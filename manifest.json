@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.mscg9gtj",
+  "version": "3.52.0+ota.mscgfw8a",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/mscg9gtj",
-  "builtAt": "2026-08-02T23:47:05.191Z",
+  "filesDir": "files/mscgfw8a",
+  "builtAt": "2026-08-02T23:52:05.098Z",
   "files": [
     {
       "path": "index.html",
@@ -73,8 +73,8 @@
     },
     {
       "path": "js/features/13-backup.js",
-      "sha256": "12fed897bc30e451e78842186c98a27727edb3d749aa33aa2503dbb8654d7a81",
-      "bytes": 24662
+      "sha256": "a134949de31fcc4c906e8eaacd6773db689eafa3a49f0b4b6e3af54bd4079466",
+      "bytes": 24985
     },
     {
       "path": "js/features/14-onboarding.js",
