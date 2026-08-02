@@ -155,10 +155,20 @@ function openAppUpdate(){
   document.getElementById("detBody").innerHTML=
     "<p style='color:var(--muted);margin-top:0'>Pulls a new version of the app's code straight from your server — no reinstall. Only signed updates are accepted, so a wrong or tampered file is refused.</p>"+
     "<div class='fld'><label>Update source (https)</label><input id='ota_url' placeholder='https://your-server/gymtracker/ota/' value=\""+String(st.url||"").replace(/"/g,'&quot;')+"\"></div>"+
+    /* This is the FOLDER the app appends manifest.json to, not a page. Opening it in a browser
+       gives 404 on most hosts (raw.githubusercontent serves no directory listings), which
+       reads as "the URL is wrong" when it is perfectly fine — so show the file that is
+       actually fetched, which is the thing worth testing in a browser. */
+    "<p class='smartFinePrint' id='ota_hint' style='margin-top:-6px'></p>"+
     "<p style='color:var(--muted);font-size:13px'>Installed update: <b>"+esc(st.version||"none (using built-in)")+"</b><br>App build: <b>"+esc(appVer())+"</b></p>"+
     "<div class='btnrow'><button id='ota_go'>⬇️ Check for updates</button></div>"+
     "<div class='btnrow'><button class='ghost' id='ota_reset'>Revert to the built-in version</button></div>"+
     "<p class='smartFinePrint'>Exercise images and anything written in Java still come from the installed APK — those need a normal install.</p>";
+  const hint=document.getElementById("ota_hint"), urlIn=document.getElementById("ota_url");
+  const showHint=()=>{ const v=urlIn.value.trim();
+    hint.innerHTML=v?("Checks <b>"+esc(v.replace(/\/+$/,"")+"/manifest.json")+"</b><br>The folder itself will show 404 in a browser — that is normal. Open the manifest link above to test it.")
+      :"Enter the folder that contains manifest.json (the app adds the filename itself)."; };
+  urlIn.oninput=showHint; showHint();
   document.getElementById("ota_go").onclick=async()=>{
     const u=document.getElementById("ota_url").value.trim();
     native("otaSetUrl",u);

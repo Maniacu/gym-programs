@@ -1,9 +1,9 @@
 {
   "schema": 1,
-  "version": "3.50.0+ota.msbjifzi",
+  "version": "3.50.0+ota.msc4rrdr",
   "appVersion": "3.50.0",
   "minNative": 97,
-  "builtAt": "2026-08-02T08:30:16.686Z",
+  "builtAt": "2026-08-02T18:25:23.295Z",
   "files": [
     {
       "path": "index.html",
@@ -72,8 +72,8 @@
     },
     {
       "path": "js/features/13-backup.js",
-      "sha256": "e10dba090c74866edbe5f8c2e246c0621c99a7b0c111b671567c4420d8e999a7",
-      "bytes": 22027
+      "sha256": "74112a5c2f9b655357b5468f9aa2741a115340781dd59c0189909d9be917d48b",
+      "bytes": 22925
     },
     {
       "path": "js/features/14-onboarding.js",
