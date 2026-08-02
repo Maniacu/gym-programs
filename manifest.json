@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.51.0+ota.msc4ytzi",
-  "appVersion": "3.51.0",
-  "minNative": 98,
-  "filesDir": "files/msc4ytzi",
-  "builtAt": "2026-08-02T18:30:53.262Z",
+  "version": "3.51.1+ota.msc55quw",
+  "appVersion": "3.51.1",
+  "minNative": 99,
+  "filesDir": "files/msc55quw",
+  "builtAt": "2026-08-02T18:36:15.800Z",
   "files": [
     {
       "path": "index.html",
@@ -18,8 +18,8 @@
     },
     {
       "path": "js/app.js",
-      "sha256": "f9f8b89e89b7ad3f011160e37bbaad7df3e1703a1def2071fc5e86cde48715af",
-      "bytes": 7139
+      "sha256": "470afd6d4e8cd74e61edcf20dbbd3f463fd722e67db6c1786ffd0f7e0b54972a",
+      "bytes": 7378
     },
     {
       "path": "js/core/00-util.js",
@@ -28,7 +28,7 @@
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "27f0711a647fa29e62485716a9650ac794a1b7c96d8717deb1fdf3a69a69f5a9",
+      "sha256": "2e554d94cea70a29bb2c719880f567b1272f2bd8be1f2171d387f0e9a110431d",
       "bytes": 14929
     },
     {
@@ -73,8 +73,8 @@
     },
     {
       "path": "js/features/13-backup.js",
-      "sha256": "74112a5c2f9b655357b5468f9aa2741a115340781dd59c0189909d9be917d48b",
-      "bytes": 22925
+      "sha256": "39694c8da56630b3bbc5d84bcad5ead6cda67021dafd62df59a3fe31e2aacd7a",
+      "bytes": 23733
     },
     {
       "path": "js/features/14-onboarding.js",
