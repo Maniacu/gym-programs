@@ -158,11 +158,22 @@ async function otaAutoCheck(){
   try{
     const st=otaStatus(); if(!st.url)return;
     const last=+(localStorage.getItem("__otachk")||0);
-    if(Date.now()-last<6*3600*1000)return;   // at most once every 6 hours
+    /* Back off to 6-hourly once a bundle is actually installed, but keep retrying every minute
+       until then. Otherwise the very first check after setting a URL — the one the user is
+       waiting on — can be swallowed by a throttle a previous failed attempt consumed, and the
+       channel looks dead for six hours. The manifest is ~4 KB, so frequent retries cost
+       nothing until an update is in place. */
+    const wait=st.version?6*3600*1000:60*1000;
+    if(Date.now()-last<wait){ console.log("[ota] auto-check skipped (throttled)"); return; }
     localStorage.setItem("__otachk",String(Date.now()));
     const r=await otaCheckNative();
+    /* Logged, not just toasted: the auto-check is deliberately silent on failure so a flaky
+       gym connection never nags, which also means a genuinely broken update channel would be
+       invisible. console.log reaches Logcat via the WebChromeClient, so `adb logcat -s
+       GymTrackerJS` can always answer "what did the last check actually do". */
+    console.log("[ota] auto-check: "+r);
     if(r.indexOf("OK ")===0)toast("App update ready — restart to apply");
-  }catch(e){}
+  }catch(e){ console.log("[ota] auto-check threw: "+e); }
 }
 function openAppUpdate(){
   const st=otaStatus();

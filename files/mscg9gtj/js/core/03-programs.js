@@ -8,8 +8,8 @@
  * shadowing a built-in program id, invisible to and unaffected by any future
  * program.js fix). */
 const PROGRAMS=window.PROGRAMS, FOCUS=window.FOCUS, LIB=window.LIB||[];
-const DIFF={ "3fb":"Beginner","4ul":"Intermediate","5up":"Advanced","6ppl":"Advanced","ubp":"Advanced","pp4":"Intermediate","bws":"Advanced","bwsnl":"Advanced" };
-const PROG_ICON={ "3fb":"🟢","4ul":"⚡","5up":"🔥","6ppl":"💪","ubp":"🔝","pp4":"🔁","bws":"🔬","bwsnl":"🧪" };
+const DIFF={ "3fb":"Beginner","4ul":"Intermediate","5up":"Advanced","6ppl":"Advanced","ubp":"Advanced","pp4":"Intermediate","bws":"Advanced","bwsnl":"Advanced","stier5":"Advanced" };
+const PROG_ICON={ "3fb":"🟢","4ul":"⚡","5up":"🔥","6ppl":"💪","ubp":"🔝","pp4":"🔁","bws":"🔬","bwsnl":"🧪","stier5":"⭐" };
 let PROGRAM=[];
 const WDAYS=["MON","TUE","WED","THU","FRI","SAT","SUN"];
 
