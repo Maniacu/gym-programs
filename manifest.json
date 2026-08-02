@@ -1,9 +1,10 @@
 {
   "schema": 1,
-  "version": "3.50.0+ota.msc4rrdr",
-  "appVersion": "3.50.0",
-  "minNative": 97,
-  "builtAt": "2026-08-02T18:25:23.295Z",
+  "version": "3.51.0+ota.msc4ytzi",
+  "appVersion": "3.51.0",
+  "minNative": 98,
+  "filesDir": "files/msc4ytzi",
+  "builtAt": "2026-08-02T18:30:53.262Z",
   "files": [
     {
       "path": "index.html",
@@ -27,7 +28,7 @@
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "189b8dba4315fab68ddfa402fec802ba4ad80b167c1a3a43d33c747bdb66fe0b",
+      "sha256": "27f0711a647fa29e62485716a9650ac794a1b7c96d8717deb1fdf3a69a69f5a9",
       "bytes": 14929
     },
     {
