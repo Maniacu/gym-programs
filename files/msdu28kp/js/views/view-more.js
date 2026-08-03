@@ -52,7 +52,11 @@ function renderMore(){
       row("adjustments-horizontal","Privacy & AI data",privacyLabel(),"openAIPrivacySettings()")+
       row("cloud-download","Share backup","Drive / Files","shareBackupCloud()")+
       row("cloud-download","Backup & restore","","openBackup()")+
-      row("refresh","Update programs",(localStorage.getItem("__progver")||"online"),"openProgSync()")+
+      /* One update entry, not two. "Update programs" (the older programs.json sync) sat right
+         next to "App updates" and the difference between them was meaningless to a user —
+         especially now that the app OTA ships program.js itself, so program changes already
+         arrive through it. openProgSync() is kept and still reachable from the App updates
+         screen for anyone using a separate program feed. */
       row("cloud-download","App updates",(otaStatus().version?"updated":"built-in"),"openAppUpdate()")+
       row("share","Share progress","","shareProg()")+
       row("file-export","Export CSV","","exportCSV()")+

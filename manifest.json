@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.mschxrlw",
+  "version": "3.52.0+ota.msdu28kp",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/mschxrlw",
-  "builtAt": "2026-08-03T00:33:58.532Z",
+  "filesDir": "files/msdu28kp",
+  "builtAt": "2026-08-03T23:01:08.713Z",
   "files": [
     {
       "path": "index.html",
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "1f608104b4ef11254867a3913067ba5f8db59b451563a0bc51686a5e045f8292",
-      "bytes": 367389
+      "sha256": "d91fd37032c3c79ea211a675902372b71203e73a5ae9ab8ce3a02bf5caac892f",
+      "bytes": 323405
     },
     {
       "path": "js/views/view-exercises.js",
