@@ -158,12 +158,15 @@ async function otaAutoCheck(){
   try{
     const st=otaStatus(); if(!st.url)return;
     const last=+(localStorage.getItem("__otachk")||0);
-    /* Back off to 6-hourly once a bundle is actually installed, but keep retrying every minute
-       until then. Otherwise the very first check after setting a URL — the one the user is
-       waiting on — can be swallowed by a throttle a previous failed attempt consumed, and the
-       channel looks dead for six hours. The manifest is ~4 KB, so frequent retries cost
-       nothing until an update is in place. */
-    const wait=st.version?6*3600*1000:60*1000;
+    /* 15 minutes, not hours. The first version backed off to 6-hourly once a bundle was
+       installed, which meant a published fix could sit unfetched for most of a day — the user
+       hit exactly that: a corrected exercise photo was live for hours while their phone kept
+       showing the old one, and the only way to get it was to tap Check for updates. For a
+       channel whose entire purpose is shipping fixes quickly that is far too slow, and the
+       cost of being wrong is one stale-looking app. The check is a ~4 KB manifest fetch, so
+       effectively-every-launch is cheap; the 15-minute floor only stops rapid app switching
+       from hammering it. Still 60s while nothing is installed, so first-time setup is snappy. */
+    const wait=st.version?15*60*1000:60*1000;
     if(Date.now()-last<wait){ console.log("[ota] auto-check skipped (throttled)"); return; }
     localStorage.setItem("__otachk",String(Date.now()));
     const r=await otaCheckNative();
@@ -172,7 +175,16 @@ async function otaAutoCheck(){
        invisible. console.log reaches Logcat via the WebChromeClient, so `adb logcat -s
        GymTrackerJS` can always answer "what did the last check actually do". */
     console.log("[ota] auto-check: "+r);
-    if(r.indexOf("OK ")===0)toast("App update ready — restart to apply");
+    if(r.indexOf("OK ")!==0)return;
+    /* Apply it right away instead of asking. Requiring a manual restart meant an update could
+       download, sit there, and leave the app looking untouched — which reads as a broken
+       update, and did. A reload is cheap and loses nothing: state is already persisted, and
+       every asset request goes back through the native interceptor to pick up the new files.
+       The ONE case worth deferring is a live workout — reloading mid-session would drop the
+       user out of their set grid, so that waits for the next launch. */
+    if(typeof sess==="function"&&sess()){ toast("App update ready — applies after this workout"); return; }
+    toast("Updating app…");
+    setTimeout(()=>{ try{ location.reload(); }catch(e){} },1200);
   }catch(e){ console.log("[ota] auto-check threw: "+e); }
 }
 function openAppUpdate(){
@@ -188,8 +200,15 @@ function openAppUpdate(){
     "<p class='smartFinePrint' id='ota_hint' style='margin-top:-6px'></p>"+
     "<p style='color:var(--muted);font-size:13px'>Installed update: <b>"+esc(st.version||"none (using built-in)")+"</b><br>App build: <b>"+esc(appVer())+"</b></p>"+
     "<div class='btnrow'><button id='ota_go'>⬇️ Check for updates</button></div>"+
+    /* A downloaded bundle only takes effect on the next load — deliberately, so the running JS
+       can never disagree with the files on disk mid-session. But without a visible way to DO
+       that, an update installs and the app looks unchanged, which reads as "the update did
+       nothing". A reload is enough: every asset request goes back through the native
+       interceptor and picks up the new files, no process kill needed. */
+    (st.version?"<div class='btnrow'><button id='ota_apply'>🔄 Restart now to apply</button></div>":"")+
     "<div class='btnrow'><button class='ghost' id='ota_reset'>Revert to the built-in version</button></div>"+
-    "<p class='smartFinePrint'>Exercise images and anything written in Java still come from the installed APK — those need a normal install.</p>";
+    "<p class='smartFinePrint'>Exercise images and anything written in Java still come from the installed APK — those need a normal install.</p>"+
+    "<div class='btnrow'><button class='ghost' id='ota_progsync'>Separate program feed (advanced)</button></div>";
   const hint=document.getElementById("ota_hint"), urlIn=document.getElementById("ota_url");
   const showHint=()=>{ const v=urlIn.value.trim();
     hint.innerHTML=v?("Checks <b>"+esc(v.replace(/\/+$/,"")+"/manifest.json")+"</b><br>The folder itself will show 404 in a browser — that is normal. Open the manifest link above to test it.")
@@ -206,6 +225,10 @@ function openAppUpdate(){
       else toast("Update installs next time you open the app");
     } else toast(r);
   };
+  const ps=document.getElementById("ota_progsync");
+  if(ps)ps.onclick=()=>{ detDlg.close(); setTimeout(openProgSync,120); };
+  const ap=document.getElementById("ota_apply");
+  if(ap)ap.onclick=()=>{ if(sess()&&!confirm("A workout is in progress. Restart anyway?"))return; location.reload(); };
   document.getElementById("ota_reset").onclick=()=>{
     if(!confirm("Discard the downloaded update and go back to the version built into the app?"))return;
     native0("otaClear"); toast("Reverted — restarting"); setTimeout(()=>location.reload(),600);

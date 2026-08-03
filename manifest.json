@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.mschhicj",
+  "version": "3.52.0+ota.mschnbxs",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/mschhicj",
-  "builtAt": "2026-08-03T00:21:20.035Z",
+  "filesDir": "files/mschnbxs",
+  "builtAt": "2026-08-03T00:25:51.664Z",
   "files": [
     {
       "path": "index.html",
@@ -73,8 +73,8 @@
     },
     {
       "path": "js/features/13-backup.js",
-      "sha256": "cc18ff3cca65827fe2a8c6c42d6ea006f90f0818165126076f1717dd18a5c1dd",
-      "bytes": 25705
+      "sha256": "e2d5246daa93cd9e7a4f724cc619cc63df341cff21e176733812b73f9a54be66",
+      "bytes": 26654
     },
     {
       "path": "js/features/14-onboarding.js",
@@ -98,13 +98,13 @@
     },
     {
       "path": "js/views/view-more.js",
-      "sha256": "3d7f252925f9065c4f4900719e1255eda47472c31a6226dec28418346c5e677f",
-      "bytes": 28630
+      "sha256": "9e56e53bde7ba5c038b7c3a12713f9d61d6c277725e4b81676ef9212779f5850",
+      "bytes": 28961
     },
     {
       "path": "js/views/view-plan.js",
-      "sha256": "bdaf708330c4c365dee4b8799a3b3ed5a5654cdc9b9536f13847bba3cb4e8e67",
-      "bytes": 50942
+      "sha256": "852ca68d846af0f98ae6990747e07e1c128e88387a0067226b7bed1f06634092",
+      "bytes": 51529
     },
     {
       "path": "js/views/view-recovery.js",
