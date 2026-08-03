@@ -107,8 +107,14 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   /* biceps / forearms */
   if(has(/wrist curl|finger curl|reverse.*curl|zottman|wrist roller|forearm/)) return "Forearms";
   if(has(/incline.*curl/)) return "Biceps long head (stretch)";
-  if(has(/preacher|spider|concentration/)) return "Biceps short head (peak)";
+  /* GRIP BEFORE BENCH. A neutral/hammer grip decides which elbow flexor does the work, so it
+     has to be tested before the preacher rule — otherwise "Preacher Hammer Dumbbell Curl"
+     matches "preacher" first and is labelled short head, which is what the bench does, not
+     what the grip does. That mislabel hid a real hole: the program's only brachialis movement
+     was reporting as a second short-head exercise, so the arms day read as short+short and
+     the brachialis was uncovered all week without any check noticing. */
   if(has(/hammer|cross[- ]body|neutral.*curl|rope curl/)&&has(/curl/)) return "Brachialis + biceps";
+  if(has(/preacher|spider|concentration/)) return "Biceps short head (peak)";
   if(has(/drag curl/)) return "Biceps (both heads)";
   if(has(/curl/)&&(m==="Biceps"||pm==="Biceps")&&!has(/leg|wrist|finger|calf/)) return "Biceps (both heads)";
   /* triceps */

@@ -488,7 +488,15 @@ function renderPlan(){
   const selectedName=isToday?"Today":(FULLDAY[selWeekday]||"Training");
   const dateLabel=isToday?new Date().toLocaleDateString("default",{weekday:"long",month:"long",day:"numeric"}):(FULLDAY[selWeekday]||selWeekday);
   const progName=((PROGRAMS[activeProg]||{}).name||"Program").replace(/^\d-Day\s*/,"");
-  let h="<div class='home2 ciHome'><header class='ciTop'><div><span>"+esc(dateLabel)+"</span><h1>"+esc(selectedName)+"</h1></div><button class='homeCoach' data-home='coach'>"+icon("sparkles",16)+"<span>Coach</span></button></header>";
+  /* Settings sits next to Coach in the home header. It used to be reachable only through a
+     button on the Plan tab, which is two taps deep and somewhere nobody looks for settings —
+     the user could not find it. The bottom nav is already full at five items, so the header is
+     the right place for it. */
+  let h="<div class='home2 ciHome'><header class='ciTop'><div><span>"+esc(dateLabel)+"</span><h1>"+esc(selectedName)+"</h1></div>"+
+    "<div style='display:flex;align-items:center;gap:8px'>"+
+    "<button class='homeCoach' data-home='coach'>"+icon("sparkles",16)+"<span>Coach</span></button>"+
+    "<button class='homeCoach' data-home='settings' aria-label='Settings' title='Settings' style='padding:8px'>"+icon("settings",18)+"</button>"+
+    "</div></header>";
   if(draft)h+="<section class='homeResume2 ciResume'><div class='txt'><div class='a'>Workout in progress</div><div class='b'>"+esc(draft.title||"Resume your session")+"</div></div><button class='primary' data-home='resume'>Resume</button><button data-home='clear'>Clear</button></section>";
   h+="<div class='homeWeek2 ciWeek' aria-label='Training week'>"+wk.map(d=>{const train=calendarDayIndex(d.wd,d.iso)>=0;return "<button class='homeDay"+(d.wd===selWeekday?" sel":"")+(d.wd===tdy?" today":"")+(train?" train":"")+"' data-wd='"+d.wd+"' aria-label='"+escAttr(FULLDAY[d.wd]+", "+d.date+(train?", training day":", recovery day"))+"' aria-pressed='"+(d.wd===selWeekday?"true":"false")+"'><span class='wd'>"+d.wd.charAt(0)+"</span><span class='dt'>"+d.date+"</span><i class='pip'></i></button>";}).join("")+"</div>";
   h+=manualScheduleHTML(selectedDate.iso,manual);
@@ -521,6 +529,7 @@ function renderPlan(){
   v.querySelectorAll("[data-home]").forEach(b=>b.onclick=()=>{
     const act=b.dataset.home;
     if(act==="coach")coach();
+    else if(act==="settings")nav("more");
     else if(act==="resume")resumeSession();
     else if(act==="clear")discardSession();
     else if(act==="start"){if(activeSession())resumeSession();else startDay(+b.dataset.di);}

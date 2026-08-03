@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.mschnbxs",
+  "version": "3.52.0+ota.mschxrlw",
   "appVersion": "3.52.0",
   "minNative": 102,
-  "filesDir": "files/mschnbxs",
-  "builtAt": "2026-08-03T00:25:51.664Z",
+  "filesDir": "files/mschxrlw",
+  "builtAt": "2026-08-03T00:33:58.532Z",
   "files": [
     {
       "path": "index.html",
@@ -23,8 +23,8 @@
     },
     {
       "path": "js/core/00-util.js",
-      "sha256": "9a3627ea3eff96d84184165d1c91fd236cf69fe73b415ad755158da228cbe6f6",
-      "bytes": 29563
+      "sha256": "1a16e17acb27def3494093b225abe56c0d14dc9e0f41127a1e230794937e2409",
+      "bytes": 30103
     },
     {
       "path": "js/core/01-native.js",
