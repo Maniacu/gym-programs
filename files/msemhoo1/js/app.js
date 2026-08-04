@@ -76,6 +76,15 @@ function finishStateBootstrap(){
 if(window.__durableBootPromise&&typeof window.__durableBootPromise.then==="function")
   window.__durableBootPromise.then(finishStateBootstrap).catch(finishStateBootstrap);
 else finishStateBootstrap();
+/* Surface anything a boot migration changed underneath the user. Deliberately late enough
+   that the first render has finished — a toast fired before the shell exists is swallowed. */
+setTimeout(()=>{
+  try{
+    if(!state.__lateralNotice)return;
+    toast(state.__lateralNotice);
+    delete state.__lateralNotice; save();
+  }catch(e){}
+},2200);
 /* background refresh on launch (no-op unless the user has set an OTA source URL) */
 setTimeout(()=>{ try{ fetchPrograms(false); }catch(e){} },800);
 /* same for the app's own code — runs after the boot-ok watchdog below has had time to fire,

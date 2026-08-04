@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.54.0+ota.msehaenh",
+  "version": "3.54.0+ota.msemhoo1",
   "appVersion": "3.54.0",
   "minNative": 104,
-  "filesDir": "files/msehaenh",
-  "builtAt": "2026-08-04T09:51:21.005Z",
+  "filesDir": "files/msemhoo1",
+  "builtAt": "2026-08-04T12:16:58.657Z",
   "files": [
     {
       "path": "index.html",
@@ -18,8 +18,8 @@
     },
     {
       "path": "js/app.js",
-      "sha256": "470afd6d4e8cd74e61edcf20dbbd3f463fd722e67db6c1786ffd0f7e0b54972a",
-      "bytes": 7378
+      "sha256": "42ed48d3690c39addd64ceb86b2c3f8817a678cf970690dcab7a45368fd71623",
+      "bytes": 7727
     },
     {
       "path": "js/core/00-util.js",
@@ -33,8 +33,8 @@
     },
     {
       "path": "js/core/02-state.js",
-      "sha256": "b00c84c02d86ccf89a51052d4d27573353800c24dfbe1e05e427fda974e5d3ec",
-      "bytes": 19215
+      "sha256": "4b2ef7623015cce46ed0d1e10b68ada0828420dd04bcf7c6a80d33c40af250e0",
+      "bytes": 22537
     },
     {
       "path": "js/core/02-storage.js",

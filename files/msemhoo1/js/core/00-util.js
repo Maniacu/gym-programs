@@ -86,6 +86,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   if(has(/y-?raise|lower trap|trap-?3/)) return "Lower traps (Y-raise)";
   if(has(/shrug/)) return "Upper traps";
   if(has(/cuban|external rotation|internal rotation|\bcuff|scaption|w-?raise/)) return "Rotator cuff + rear delts";
+  /* A high-incline (~60°) press is a front-delt movement, not an upper-chest one, but its
+     NAME reads identically to an incline bench press — the only signal that separates them
+     is the muscle tag. Must precede the chest incline rule below, which matches on
+     /incline/ + /press/ alone and would otherwise claim it as upper chest. */
+  if(has(/incline/)&&has(/press/)&&(m==="Shoulders"||pm==="Shoulders")) return "Front delts";
   /* chest */
   if(has(/incline/)&&has(/press|fly|flye|chest|bench|dumbbell|barbell|smith|cable|push-?up/)&&(m==="Chest"||pm==="Chest"||has(/press|fly|flye|chest/))) return has(/fly|flye|cable|crossover/)?"Upper chest (inner squeeze)":"Upper chest (clavicular)";
   if(has(/decline/)&&has(/press|fly|flye|bench|push-?up|chest/)) return "Lower chest (sternal)";
@@ -107,6 +112,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   /* biceps / forearms */
   if(has(/wrist curl|finger curl|reverse.*curl|zottman|wrist roller|forearm/)) return "Forearms";
   if(has(/incline.*curl/)) return "Biceps long head (stretch)";
+  /* Cable long-head work: the shoulder, not the elbow, is what loads the long head here —
+     the arm is either behind the torso (bayesian / behind-the-body) or out to the side at
+     shoulder height (high cable curl). No generic /curl/ rule can infer that from the name,
+     so these fell through to "Biceps (both heads)" and the long head read as uncovered. */
+  if(has(/curl/)&&has(/bayesian|behind[- ](the[- ])?body|high cable/)) return "Biceps long head (stretch)";
   /* GRIP BEFORE BENCH. A neutral/hammer grip decides which elbow flexor does the work, so it
      has to be tested before the preacher rule — otherwise "Preacher Hammer Dumbbell Curl"
      matches "preacher" first and is labelled short head, which is what the bench does, not
@@ -125,6 +135,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
      pushdown rule, which would otherwise label it lateral. Reverse CURLS are caught by
      the forearm rule further up, so this cannot swallow them. */
   if(has(/(reverse|underhand|supinated)[- ]?(grip)?.*(pushdown|press-?down|pressdown|extension)/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps medial head";
+  /* Same reasoning for the cross-body cable extension: pulling across the torso biases the
+     medial head. Sits with the reverse-grip rule above the generic pushdown rule, which
+     would otherwise call it lateral. The /curl/ guard on the brachialis rule further up
+     already keeps that one from swallowing "Cross-Body Cable Tricep Extension". */
+  if(has(/cross[- ]body/)&&has(/tricep|extension/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps medial head";
   if(has(/pushdown|press-?down|pressdown|kickback/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps lateral head";
   if(has(/close-?grip|diamond|\bdip/)&&(m==="Triceps"||pm==="Triceps")) return "All three triceps heads";
   if(has(/tricep|extension/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps";
@@ -256,7 +271,17 @@ function bodyComp(p,weightKg,bfPct){
 }
 
 /* ---------- toast / haptics ---------- */
-function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1500); }
+/* A <dialog> opened with showModal() is painted in the browser's TOP LAYER, which sits above
+   every normal element no matter how high its z-index. So any toast fired while a dialog was
+   open — "Already up to date", "Update failed", every result of the App updates screen — was
+   rendered behind it and only became visible after closing the dialog. Users reasonably read
+   that as the button doing nothing. Fix: re-parent the toast into the open dialog so it shares
+   the same layer, and move it back to <body> once nothing is modal. z-index alone cannot
+   escape the top layer, so this has to be done by re-parenting. */
+function toast(m){ const t=document.getElementById("toast"); if(!t)return;
+  const open=document.querySelectorAll("dialog[open]"), host=open.length?open[open.length-1]:document.body;
+  if(t.parentElement!==host){ try{ host.appendChild(t); }catch(e){} }
+  t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1500); }
 /* In-app text prompt (replaces window.prompt, which some OEM WebViews render badly or
    swallow entirely). Stacks fine on top of an open <dialog>. Falls back to prompt()
    when the #inDlg element is missing (headless tests). */

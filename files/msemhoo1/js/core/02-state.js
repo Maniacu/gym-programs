@@ -276,6 +276,54 @@ if(!state.__migConceptI331){
   state.__migConceptI331=true;
   try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){}
 }
+/* 2026-08-04 — the seated-lateral-raise repair, and the fork problem behind it.
+ *
+ * Two things went wrong here, and neither is fixable by editing a built-in program:
+ *
+ * 1. A custom program is a FORK — a frozen copy of the built-in it was based on. Rebuilding
+ *    that built-in therefore does nothing at all for anyone training the fork, which is why
+ *    an approved rewrite of `stier5` appeared on this device to have changed nothing.
+ * 2. The pre-rebuild forks carry SEATED lateral raises, which need a bench dragged over to
+ *    the cable stack. In a busy gym that is not a suboptimal pick, it is a movement the user
+ *    cannot perform at all — so it has to go regardless of which program they end up on.
+ *
+ * So: repair every custom program by content (not by id — any device may hold one), then
+ * move anyone still sitting on a stale fork onto the split that superseded it. The fork is
+ * KEPT, never deleted. It is the user's own work and switching back must stay possible —
+ * just without the movement they cannot do in it.
+ *
+ * Renaming the exercise does orphan its logged sets, since history is name-keyed. That is
+ * the right trade here: standing and seated cable laterals load differently enough that the
+ * old numbers would be a misleading starting point anyway.
+ */
+if(!state.__migStandingLateral354){
+  const SEATED=/(cable seated lateral|seated cable lateral|seated side lateral|one-?arm incline lateral)/i;
+  const STAND=(window.LIB||[]).find(x=>x.n==="Standing Low-Pulley Deltoid Raise");
+  const CUE="Standing at a low pulley, cable running behind the legs, one arm at a time — no bench needed. Pronate the palm, raise slightly in front of the frontal plane, and stop at shoulder height.";
+  const custom=state.customPrograms||{};
+  const optsOf=p=>{ const out=[]; (((p||{}).prog||{}).days||[]).forEach(d=>(d.ex||[]).forEach(x=>(x.opts||[]).forEach(o=>out.push(o)))); return out; };
+  /* Capture staleness BEFORE repairing, or the repair erases the evidence for the move. */
+  const onStaleFork=!!(state.programId&&custom[state.programId]&&optsOf(custom[state.programId]).some(o=>SEATED.test(String(o.n||""))));
+  let fixed=0;
+  if(STAND) Object.keys(custom).forEach(id=>optsOf(custom[id]).forEach(o=>{
+    if(!SEATED.test(String(o.n||"")))return;
+    o.n="Cable Lateral Raise"; o.img=STAND.img; o.eq="cable"; o.cue=CUE; fixed++;
+  }));
+  let moved=false;
+  if(onStaleFork&&window.PROGRAMS&&window.PROGRAMS.stier5){
+    state.programId="stier5"; moved=true;
+    /* A half-finished session still points at the fork's slot keys; leaving it would reopen
+       the old day on top of the new program. */
+    try{ const draft=JSON.parse(localStorage.getItem("gymSess")||"null");
+      if(draft&&draft.target&&String(draft.target.key||"").indexOf("custom_")===0)localStorage.removeItem("gymSess"); }catch(e){}
+  }
+  /* Never change someone's program silently — app.js surfaces this once, then clears it. */
+  if(moved)state.__lateralNotice="Switched to the 5-Day S-Tier Split. Your custom program is still saved under Program & days.";
+  else if(fixed)state.__lateralNotice="Seated lateral raises replaced with the standing cable version — no bench needed.";
+  state.__migStandingLateral354=true;
+  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){}
+}
+
 let activeProg=state.programId||null;
 let profile=state.profile||null;
 
