@@ -107,8 +107,14 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   /* biceps / forearms */
   if(has(/wrist curl|finger curl|reverse.*curl|zottman|wrist roller|forearm/)) return "Forearms";
   if(has(/incline.*curl/)) return "Biceps long head (stretch)";
-  if(has(/preacher|spider|concentration/)) return "Biceps short head (peak)";
+  /* GRIP BEFORE BENCH. A neutral/hammer grip decides which elbow flexor does the work, so it
+     has to be tested before the preacher rule — otherwise "Preacher Hammer Dumbbell Curl"
+     matches "preacher" first and is labelled short head, which is what the bench does, not
+     what the grip does. That mislabel hid a real hole: the program's only brachialis movement
+     was reporting as a second short-head exercise, so the arms day read as short+short and
+     the brachialis was uncovered all week without any check noticing. */
   if(has(/hammer|cross[- ]body|neutral.*curl|rope curl/)&&has(/curl/)) return "Brachialis + biceps";
+  if(has(/preacher|spider|concentration/)) return "Biceps short head (peak)";
   if(has(/drag curl/)) return "Biceps (both heads)";
   if(has(/curl/)&&(m==="Biceps"||pm==="Biceps")&&!has(/leg|wrist|finger|calf/)) return "Biceps (both heads)";
   /* triceps */
@@ -250,7 +256,17 @@ function bodyComp(p,weightKg,bfPct){
 }
 
 /* ---------- toast / haptics ---------- */
-function toast(m){ const t=document.getElementById("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1500); }
+/* A <dialog> opened with showModal() is painted in the browser's TOP LAYER, which sits above
+   every normal element no matter how high its z-index. So any toast fired while a dialog was
+   open — "Already up to date", "Update failed", every result of the App updates screen — was
+   rendered behind it and only became visible after closing the dialog. Users reasonably read
+   that as the button doing nothing. Fix: re-parent the toast into the open dialog so it shares
+   the same layer, and move it back to <body> once nothing is modal. z-index alone cannot
+   escape the top layer, so this has to be done by re-parenting. */
+function toast(m){ const t=document.getElementById("toast"); if(!t)return;
+  const open=document.querySelectorAll("dialog[open]"), host=open.length?open[open.length-1]:document.body;
+  if(t.parentElement!==host){ try{ host.appendChild(t); }catch(e){} }
+  t.textContent=m; t.classList.add("on"); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove("on"),1500); }
 /* In-app text prompt (replaces window.prompt, which some OEM WebViews render badly or
    swallow entirely). Stacks fine on top of an open <dialog>. Falls back to prompt()
    when the #inDlg element is missing (headless tests). */

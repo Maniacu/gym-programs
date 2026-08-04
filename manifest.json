@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.52.0+ota.msdu28kp",
-  "appVersion": "3.52.0",
-  "minNative": 102,
-  "filesDir": "files/msdu28kp",
-  "builtAt": "2026-08-03T23:01:08.713Z",
+  "version": "3.53.0+ota.msdywknf",
+  "appVersion": "3.53.0",
+  "minNative": 103,
+  "filesDir": "files/msdywknf",
+  "builtAt": "2026-08-04T01:16:42.507Z",
   "files": [
     {
       "path": "index.html",
@@ -23,12 +23,12 @@
     },
     {
       "path": "js/core/00-util.js",
-      "sha256": "1a16e17acb27def3494093b225abe56c0d14dc9e0f41127a1e230794937e2409",
-      "bytes": 30103
+      "sha256": "6d77568198ff361fd524dbeace96e7c5a63415d36202873931cb02361e113b24",
+      "bytes": 30931
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "df35ae2efae71debe7d3acb4450beb494fc0f5fa48d0ab682f25cac8c7f8d12b",
+      "sha256": "27d2cd22c9891c00d0f6b8d18f2474f71bb9611b8b2e2e04e763b95a7d45d949",
       "bytes": 14929
     },
     {
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "d91fd37032c3c79ea211a675902372b71203e73a5ae9ab8ce3a02bf5caac892f",
-      "bytes": 323405
+      "sha256": "fd350e5bc1702e8c6103ca4bcca4cdeff1e5e1181fe3b72e54357e554c874edb",
+      "bytes": 325092
     },
     {
       "path": "js/views/view-exercises.js",

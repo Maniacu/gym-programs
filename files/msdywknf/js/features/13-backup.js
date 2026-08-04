@@ -175,7 +175,16 @@ async function otaAutoCheck(){
        invisible. console.log reaches Logcat via the WebChromeClient, so `adb logcat -s
        GymTrackerJS` can always answer "what did the last check actually do". */
     console.log("[ota] auto-check: "+r);
-    if(r.indexOf("OK ")===0)toast("App update ready — restart to apply");
+    if(r.indexOf("OK ")!==0)return;
+    /* Apply it right away instead of asking. Requiring a manual restart meant an update could
+       download, sit there, and leave the app looking untouched — which reads as a broken
+       update, and did. A reload is cheap and loses nothing: state is already persisted, and
+       every asset request goes back through the native interceptor to pick up the new files.
+       The ONE case worth deferring is a live workout — reloading mid-session would drop the
+       user out of their set grid, so that waits for the next launch. */
+    if(typeof sess==="function"&&sess()){ toast("App update ready — applies after this workout"); return; }
+    toast("Updating app…");
+    setTimeout(()=>{ try{ location.reload(); }catch(e){} },1200);
   }catch(e){ console.log("[ota] auto-check threw: "+e); }
 }
 function openAppUpdate(){
@@ -198,7 +207,8 @@ function openAppUpdate(){
        interceptor and picks up the new files, no process kill needed. */
     (st.version?"<div class='btnrow'><button id='ota_apply'>🔄 Restart now to apply</button></div>":"")+
     "<div class='btnrow'><button class='ghost' id='ota_reset'>Revert to the built-in version</button></div>"+
-    "<p class='smartFinePrint'>Exercise images and anything written in Java still come from the installed APK — those need a normal install.</p>";
+    "<p class='smartFinePrint'>Exercise images and anything written in Java still come from the installed APK — those need a normal install.</p>"+
+    "<div class='btnrow'><button class='ghost' id='ota_progsync'>Separate program feed (advanced)</button></div>";
   const hint=document.getElementById("ota_hint"), urlIn=document.getElementById("ota_url");
   const showHint=()=>{ const v=urlIn.value.trim();
     hint.innerHTML=v?("Checks <b>"+esc(v.replace(/\/+$/,"")+"/manifest.json")+"</b><br>The folder itself will show 404 in a browser — that is normal. Open the manifest link above to test it.")
@@ -215,6 +225,8 @@ function openAppUpdate(){
       else toast("Update installs next time you open the app");
     } else toast(r);
   };
+  const ps=document.getElementById("ota_progsync");
+  if(ps)ps.onclick=()=>{ detDlg.close(); setTimeout(openProgSync,120); };
   const ap=document.getElementById("ota_apply");
   if(ap)ap.onclick=()=>{ if(sess()&&!confirm("A workout is in progress. Restart anyway?"))return; location.reload(); };
   document.getElementById("ota_reset").onclick=()=>{
