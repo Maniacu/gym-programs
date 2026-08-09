@@ -39,8 +39,12 @@
   <div class="logfoot" id="chatFoot"></div>
 </div>
 
-<div class="timer" id="timer"><span class="lb">REST</span><span class="tt" id="timerT">1:30</span><span class="tact"><button class="add" id="timerSub">−15s</button><button class="add" id="timerAdd">+15s</button><button id="timerSkip">Skip</button></span></div>
-<div class="toast" id="toast"></div>
+<!-- role=timer + aria-live: the rest countdown and every toast are the app's only purely
+     visual state changes, so without these a screen-reader user is never told the rest
+     period ended or that an action succeeded. `polite` deliberately, not `assertive` —
+     neither should interrupt what is being read mid-set. -->
+<div class="timer" id="timer" role="timer" aria-live="polite" aria-atomic="true"><span class="lb">REST</span><span class="tt" id="timerT">1:30</span><span class="tact"><button class="add" id="timerSub" aria-label="Subtract 15 seconds from the rest timer">−15s</button><button class="add" id="timerAdd" aria-label="Add 15 seconds to the rest timer">+15s</button><button id="timerSkip">Skip</button></span></div>
+<div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <dialog id="inDlg"><div class="dh"><span id="inTitle">Input</span><button class="x" onclick="inDlg.close()">×</button></div><div class="db"><div class="fld"><label id="inLabel"></label><input id="inVal" style="text-align:left;font-weight:500;padding:0 12px"></div><div class="btnrow"><button id="inOk">OK</button></div></div></dialog>
 <dialog id="swapDlg"><div class="dh"><span>Swap exercise</span><button class="x" onclick="swapDlg.close()">×</button></div><div class="db" id="swapBody"></div></dialog>

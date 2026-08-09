@@ -13,17 +13,17 @@
    (bit us when trying to repair on-device data from a pulled backup). The debounce
    batches bursts of set-logging into one native write (two small files). */
 let _abT=null;
-function autoBackup(){ clearTimeout(_abT); _abT=setTimeout(()=>{ try{ native("saveBackup",JSON.stringify({data:state})); }catch(e){} },4000); }
+function autoBackup(){ clearTimeout(_abT); _abT=setTimeout(()=>{ try{ native("saveBackup",JSON.stringify({data:state})); }catch(e){qerr(e,"13-backup")} },4000); }
 function downloadText(name,text,type){
   const blob=new Blob([text],{type:type||"text/plain"}), url=URL.createObjectURL(blob), a=document.createElement("a");
   a.href=url; a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},300);
 }
 function shareProg(){ const h=state.workoutHistory||[]; let v=0; h.forEach(e=>v+=e.vol||0); const txt="💪 My training\n"+h.length+" workouts · "+volDisp(v).toLocaleString()+" "+unit+" total\n"+(PROGRAMS[activeProg]?PROGRAMS[activeProg].name:"");
-  if(navigator.share)navigator.share({text:txt}).catch(()=>{}); else {try{navigator.clipboard.writeText(txt);}catch(e){} toast("Summary copied");} }
+  if(navigator.share)navigator.share({text:txt}).catch(()=>{}); else {try{navigator.clipboard.writeText(txt);}catch(e){qerr(e,"13-backup")} toast("Summary copied");} }
 function shareBackupCloud(){
-  try{ localStorage.setItem("gymLastCloud",String(Date.now())); }catch(e){}
+  try{ localStorage.setItem("gymLastCloud",String(Date.now())); }catch(e){qerr(e,"13-backup")}
   const txt=JSON.stringify({data:state},null,2);
-  if(window.GymNative&&GymNative.shareBackup){ try{GymNative.shareBackup(txt);toast("Choose Drive or Files");return;}catch(e){} }
+  if(window.GymNative&&GymNative.shareBackup){ try{GymNative.shareBackup(txt);toast("Choose Drive or Files");return;}catch(e){qerr(e,"13-backup")} }
   downloadText("GymTracker_backup_"+todayStr()+".json",txt,"application/json");
 }
 function openHealthConnect(){
@@ -184,7 +184,7 @@ async function otaAutoCheck(){
        user out of their set grid, so that waits for the next launch. */
     if(typeof sess==="function"&&sess()){ toast("App update ready — applies after this workout"); return; }
     toast("Updating app…");
-    setTimeout(()=>{ try{ location.reload(); }catch(e){} },1200);
+    setTimeout(()=>{ try{ location.reload(); }catch(e){qerr(e,"13-backup")} },1200);
   }catch(e){ console.log("[ota] auto-check threw: "+e); }
 }
 function openAppUpdate(){
@@ -282,7 +282,7 @@ function applyPendingRemote(){try{const clean=JSON.parse(localStorage.getItem("_
  *  written but never read, so OTA-synced programs silently vanished on every restart
  *  unless the network refetch happened to succeed first (never, at the gym offline). */
 function applyCachedRemotePrograms(){
-  try{ const c=JSON.parse(localStorage.getItem("__progcache")||"null"); if(c)applyRemote(c); }catch(e){}
+  try{ const c=JSON.parse(localStorage.getItem("__progcache")||"null"); if(c)applyRemote(c); }catch(e){qerr(e,"13-backup")}
 }
 let _programNativePending={};
 function nativeProgramText(b64){try{return decodeURIComponent(escape(atob(b64)));}catch(e){try{return atob(b64);}catch(_){return "";}}}
@@ -318,11 +318,11 @@ async function fetchPrograms(loud){ const u=progUrl();
     else if(loud)toast("Already up to date ✓");
   }catch(e){ if(loud)toast("Update failed — check URL / connection"); }
 }
-function renderCurrent(){ try{ if(activeProg&&window.PROGRAMS&&window.PROGRAMS[activeProg]) buildActive(); }catch(e){} nav(curTab||"plan"); }
+function renderCurrent(){ try{ if(activeProg&&window.PROGRAMS&&window.PROGRAMS[activeProg]) buildActive(); }catch(e){qerr(e,"13-backup")} nav(curTab||"plan"); }
 function openProgSync(){ document.getElementById("detTitle").textContent="Update programs (online)";
   const ver=localStorage.getItem("__progver")||"—", upd=localStorage.getItem("__progupd");
   const when=upd?new Date(+upd).toLocaleString():"never";
-  let pending=null;try{pending=JSON.parse(localStorage.getItem("__progpending")||"null");}catch(e){}
+  let pending=null;try{pending=JSON.parse(localStorage.getItem("__progpending")||"null");}catch(e){qerr(e,"13-backup")}
   document.getElementById("detBody").innerHTML=
     "<p style='color:var(--muted);margin-top:0'>Pull new or updated programs over the internet — no app reinstall needed. Paste the raw URL of your <b>programs.json</b>.</p>"+
     "<div class='fld'><label>Source URL</label><input id='pu_url' placeholder='https://raw.githubusercontent.com/USER/gym-programs/main/programs.json' value=\""+progUrl().replace(/"/g,'&quot;')+"\"></div>"+

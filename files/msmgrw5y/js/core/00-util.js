@@ -4,6 +4,16 @@
  * a way to show a toast or vibrate from its very first line, and neither touches state
  * or programs, so they live here rather than forcing a dependency on a later file. */
 
+/* ---------- swallowed-error breadcrumb ---------- */
+/* Most `try{...}catch(e){}` in this app are deliberate: a failed localStorage write, an
+ * absent native bridge method or a missing DOM node must never take the workout down with
+ * it. But swallowing SILENTLY is what made two real bugs expensive to find — a stale OTA
+ * bundle and a migration that never ran both failed invisibly and looked like "nothing
+ * happened". qerr keeps the recovery behaviour and leaves a breadcrumb in logcat
+ * (`adb logcat -s GymTrackerJS`), so the next silent failure is one command away from
+ * being visible. Never throws, whatever it is handed. */
+function qerr(e,where){ try{ console.warn("[gym] swallowed"+(where?" @"+where:"")+":", (e&&e.stack)||e); }catch(_){} }
+
 /* ---------- theme (light/dark) ---------- */
 /* Applied synchronously in index.html's <head> (before any CSS/JS below it runs) to avoid
  * a flash of the wrong theme on load. This just keeps the rest of the app in sync with
@@ -86,6 +96,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   if(has(/y-?raise|lower trap|trap-?3/)) return "Lower traps (Y-raise)";
   if(has(/shrug/)) return "Upper traps";
   if(has(/cuban|external rotation|internal rotation|\bcuff|scaption|w-?raise/)) return "Rotator cuff + rear delts";
+  /* A high-incline (~60°) press is a front-delt movement, not an upper-chest one, but its
+     NAME reads identically to an incline bench press — the only signal that separates them
+     is the muscle tag. Must precede the chest incline rule below, which matches on
+     /incline/ + /press/ alone and would otherwise claim it as upper chest. */
+  if(has(/incline/)&&has(/press/)&&(m==="Shoulders"||pm==="Shoulders")) return "Front delts";
   /* chest */
   if(has(/incline/)&&has(/press|fly|flye|chest|bench|dumbbell|barbell|smith|cable|push-?up/)&&(m==="Chest"||pm==="Chest"||has(/press|fly|flye|chest/))) return has(/fly|flye|cable|crossover/)?"Upper chest (inner squeeze)":"Upper chest (clavicular)";
   if(has(/decline/)&&has(/press|fly|flye|bench|push-?up|chest/)) return "Lower chest (sternal)";
@@ -107,6 +122,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   /* biceps / forearms */
   if(has(/wrist curl|finger curl|reverse.*curl|zottman|wrist roller|forearm/)) return "Forearms";
   if(has(/incline.*curl/)) return "Biceps long head (stretch)";
+  /* Cable long-head work: the shoulder, not the elbow, is what loads the long head here —
+     the arm is either behind the torso (bayesian / behind-the-body) or out to the side at
+     shoulder height (high cable curl). No generic /curl/ rule can infer that from the name,
+     so these fell through to "Biceps (both heads)" and the long head read as uncovered. */
+  if(has(/curl/)&&has(/bayesian|behind[- ](the[- ])?body|high cable/)) return "Biceps long head (stretch)";
   /* GRIP BEFORE BENCH. A neutral/hammer grip decides which elbow flexor does the work, so it
      has to be tested before the preacher rule — otherwise "Preacher Hammer Dumbbell Curl"
      matches "preacher" first and is labelled short head, which is what the bench does, not
@@ -125,6 +145,11 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
      pushdown rule, which would otherwise label it lateral. Reverse CURLS are caught by
      the forearm rule further up, so this cannot swallow them. */
   if(has(/(reverse|underhand|supinated)[- ]?(grip)?.*(pushdown|press-?down|pressdown|extension)/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps medial head";
+  /* Same reasoning for the cross-body cable extension: pulling across the torso biases the
+     medial head. Sits with the reverse-grip rule above the generic pushdown rule, which
+     would otherwise call it lateral. The /curl/ guard on the brachialis rule further up
+     already keeps that one from swallowing "Cross-Body Cable Tricep Extension". */
+  if(has(/cross[- ]body/)&&has(/tricep|extension/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps medial head";
   if(has(/pushdown|press-?down|pressdown|kickback/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps lateral head";
   if(has(/close-?grip|diamond|\bdip/)&&(m==="Triceps"||pm==="Triceps")) return "All three triceps heads";
   if(has(/tricep|extension/)&&(m==="Triceps"||pm==="Triceps")) return "Triceps";
@@ -287,6 +312,10 @@ const IC={
 "arrows-exchange":"<path d=\"M7 10h14l-4 -4\" /> <path d=\"M17 14h-14l4 4\" />",
 "barbell":"<path d=\"M2 12h1\" /> <path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\" /> <path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M9 12h6\" /> <path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\" /> <path d=\"M22 12h-1\" />",
 "bolt":"<path d=\"M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11\" />",
+/* Settings > Exercise variability asked for this one and it did not exist, so row() fell
+   through to its "render the name as text" fallback and the literal word `shuffle` was
+   printed in the settings list where the icon belongs. */
+"shuffle":"<path d=\"M18 4l3 3l-3 3\" /> <path d=\"M18 20l3 -3l-3 -3\" /> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\" /> <path d=\"M3 17h3a5 5 0 0 0 5 -5a5 5 0 0 1 5 -5h5\" />",
 "books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M5 8h4\" /> <path d=\"M9 16h4\" /> <path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\" /> <path d=\"M14 9l4 -1\" /> <path d=\"M16 16l3.923 -.98\" />",
 "calendar":"<path d=\"M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z\" /> <path d=\"M16 3v4\" /> <path d=\"M8 3v4\" /> <path d=\"M4 11h16\" /> <path d=\"M11 15h1\" /> <path d=\"M12 15v3\" />",
 "chart-line":"<path d=\"M4 19l16 0\" /> <path d=\"M4 15l4 -6l4 2l4 -5l4 4\" />",
