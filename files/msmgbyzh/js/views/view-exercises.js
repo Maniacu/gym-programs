@@ -123,7 +123,7 @@ function stepDemo(){
   __demoFrame^=1; img.src=__demoFrame?__demoAlt:__demoSrc;
 }
 function demoHTML(src){
-  return "<div class='demowrap paused'><img class='detimg' id='demoImg' src='"+src+"' onerror=\"this.style.visibility='hidden'\"><span class='demobadge'>DEMO</span><div class='democtl'><button id='demoToggle'>Play</button><button id='demoStep'>Step</button></div></div>";
+  return "<div class='demowrap paused'><img alt='' class='detimg' id='demoImg' src='"+src+"' onerror=\"this.style.visibility='hidden'\"><span class='demobadge'>DEMO</span><div class='democtl'><button id='demoToggle'>Play</button><button id='demoStep'>Step</button></div></div>";
 }
 function playDemo(src){
   stopDemo(); __demoSrc=src||""; __demoAlt=__demoSrc.replace(/\.jpg$/i,"_b.jpg"); __demoFrame=0;

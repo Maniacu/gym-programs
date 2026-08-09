@@ -64,7 +64,7 @@ function compressPhotoFile(file){
 }
 function openPhotos(){
   const arr=state.progressPhotos||[]; document.getElementById("detTitle").textContent="Progress photos";
-  document.getElementById("detBody").innerHTML="<input id='ph_in' type='file' accept='image/*'><div class='photoGrid'>"+arr.slice(-8).reverse().map(p=>"<img src='"+p.data+"' title='"+escAttr(p.date)+"'>").join("")+"</div>";
+  document.getElementById("detBody").innerHTML="<input id='ph_in' type='file' accept='image/*'><div class='photoGrid'>"+arr.slice(-8).reverse().map(p=>"<img alt='' src='"+p.data+"' title='"+escAttr(p.date)+"'>").join("")+"</div>";
   document.getElementById("ph_in").onchange=async e=>{ const f=e.target.files[0]; if(!f)return; toast("Preparing photo..."); try{ const data=await compressPhotoFile(f); state.progressPhotos=state.progressPhotos||[];state.progressPhotos.push({id:"photo_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6),date:todayStr(),createdAt:new Date().toISOString(),data:data}); state.progressPhotos=trimPhotosForStorage(state.progressPhotos,false); if(save()){openPhotos(); toast("Photo saved");} }catch(err){toast("Could not read photo");} };
   detDlg.showModal();
 }
@@ -231,7 +231,7 @@ function openProgressTimeline(){
   (state.progressPhotos||[]).forEach((p,i)=>items.push({date:p.date,type:"Photo",title:"Progress photo",sub:"Photo "+(i+1),img:p.data}));
   items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
   document.getElementById("detTitle").textContent="Progress timeline";
-  document.getElementById("detBody").innerHTML=items.length?items.slice(0,80).map(x=>"<div class='hitem'><div><div class='d'>"+esc(x.type)+" · "+esc(x.title)+"</div><div class='m'>"+esc(x.date)+" · "+esc(x.sub||"")+"</div></div>"+(x.img?"<img src='"+x.img+"' style='width:54px;height:72px;object-fit:cover;border-radius:8px'>":"")+"</div>").join(""):"<div class='empty'><div class='big'>No timeline yet</div>Log workouts, measurements, PRs or photos.</div>";
+  document.getElementById("detBody").innerHTML=items.length?items.slice(0,80).map(x=>"<div class='hitem'><div><div class='d'>"+esc(x.type)+" · "+esc(x.title)+"</div><div class='m'>"+esc(x.date)+" · "+esc(x.sub||"")+"</div></div>"+(x.img?"<img alt='' src='"+x.img+"' style='width:54px;height:72px;object-fit:cover;border-radius:8px'>":"")+"</div>").join(""):"<div class='empty'><div class='big'>No timeline yet</div>Log workouts, measurements, PRs or photos.</div>";
   detDlg.showModal();
 }
 

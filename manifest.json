@@ -1,15 +1,15 @@
 {
   "schema": 1,
-  "version": "3.54.0+ota.msemhoo1",
-  "appVersion": "3.54.0",
-  "minNative": 104,
-  "filesDir": "files/msemhoo1",
-  "builtAt": "2026-08-04T12:16:58.657Z",
+  "version": "3.55.0+ota.msmgbyzh",
+  "appVersion": "3.55.0",
+  "minNative": 105,
+  "filesDir": "files/msmgbyzh",
+  "builtAt": "2026-08-09T23:46:43.805Z",
   "files": [
     {
       "path": "index.html",
-      "sha256": "8ff942e4c6f48099c0c5e7991123b6a8bf5434cef3ef4345e265f9729d22d6d3",
-      "bytes": 7629
+      "sha256": "fb12d011c6474269cff85de2b1c9de84b819b731b852c3e7728a3bbfeb66d2f8",
+      "bytes": 8161
     },
     {
       "path": "css/app.css",
@@ -23,18 +23,18 @@
     },
     {
       "path": "js/core/00-util.js",
-      "sha256": "1f07e6339a44e4e1271d8ec5821daf74f1bac1605e96eaf5310440b1ee45d69b",
-      "bytes": 32320
+      "sha256": "e150ea797dfc05a69ba2a70a68e9a7b9e3e3d4f24fc5642138dbb2be2b4304a2",
+      "bytes": 33082
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "008a22bd10df9d6db19de43834a564e27578b2baaa07d961c5d460f60ea17f0f",
-      "bytes": 14929
+      "sha256": "5efcc7fa5d3fb315e520a59bfb07b696e23f6b13948fb96c64b5bc05abc97428",
+      "bytes": 15214
     },
     {
       "path": "js/core/02-state.js",
-      "sha256": "4b2ef7623015cce46ed0d1e10b68ada0828420dd04bcf7c6a80d33c40af250e0",
-      "bytes": 22537
+      "sha256": "22c359515698a04b73c7469b83a5ca782076a91728a45232e2f0794e44343ef7",
+      "bytes": 22717
     },
     {
       "path": "js/core/02-storage.js",
@@ -53,18 +53,18 @@
     },
     {
       "path": "js/features/09-smart-trainer.js",
-      "sha256": "68287e6f3cd904819b5208c0b2ae6c591e340694b714dd46e87a6bb5280ffc9e",
-      "bytes": 125792
+      "sha256": "fb0d0ff86be5354461d0beefd550d93d5a7a32cf4cb9ca10368455f10e7f8234",
+      "bytes": 127836
     },
     {
       "path": "js/features/10-log.js",
-      "sha256": "f9937568d36c044331021a7857fe1bee7eb953deb5c93a497c0fb659b49b59e8",
-      "bytes": 96477
+      "sha256": "cbd79cd1331b285ddfb639c24e5deb33d320917008b2baeffa88bdc3c3eeb21d",
+      "bytes": 98217
     },
     {
       "path": "js/features/11-swap.js",
-      "sha256": "003c4e90c5d22bd7497a577c4806a05ea3a5eb8e84760a84b39fb826b2eda1cb",
-      "bytes": 13871
+      "sha256": "e27fe6f2f1e9c438feb8c421788e06f92caa83d63ed027b9419a62b0f2e4d3db",
+      "bytes": 13885
     },
     {
       "path": "js/features/12-coach.js",
@@ -73,8 +73,8 @@
     },
     {
       "path": "js/features/13-backup.js",
-      "sha256": "e2d5246daa93cd9e7a4f724cc619cc63df341cff21e176733812b73f9a54be66",
-      "bytes": 26654
+      "sha256": "e198bc8e5c132c2d261bf7f10c50e4c8995a6359169849f4ce35b8ee757a8822",
+      "bytes": 26806
     },
     {
       "path": "js/features/14-onboarding.js",
@@ -88,13 +88,13 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "6c6b19798a3a9f184bdee2301a3f5b78f989fdf4bd4b6472b598ec0fb508ad43",
-      "bytes": 326329
+      "sha256": "8b12c0896ce5a8512e476acd8a216953f30f291b454352924407e94bed4c4ca9",
+      "bytes": 327131
     },
     {
       "path": "js/views/view-exercises.js",
-      "sha256": "fdcd8ace2ada48e99d92556db0020f8b757c114145eba50628d10a059091afd6",
-      "bytes": 10974
+      "sha256": "42a07635cdf8c3a51151ee33c7f034976d2f00a123d8ac4aa771681fe864fe07",
+      "bytes": 10981
     },
     {
       "path": "js/views/view-more.js",
@@ -103,8 +103,8 @@
     },
     {
       "path": "js/views/view-plan.js",
-      "sha256": "852ca68d846af0f98ae6990747e07e1c128e88387a0067226b7bed1f06634092",
-      "bytes": 51529
+      "sha256": "e45d02150814dc4a6d6530a177391a4ac16d9fb67e4e701969aad5ff43d26d87",
+      "bytes": 51501
     },
     {
       "path": "js/views/view-recovery.js",
@@ -113,13 +113,13 @@
     },
     {
       "path": "js/views/view-stats.js",
-      "sha256": "17249d24dc8884c3f07cd8b07d172695db5395ba021317ecf25b698774d1c0a2",
-      "bytes": 41153
+      "sha256": "5505c7ee53f06a812f8e74af82db0eb1c4bf081d97074af6eaf68967b350c845",
+      "bytes": 41167
     },
     {
       "path": "js/views/view-workouts.js",
-      "sha256": "f38b6f466aea86c48d1a5641d3c03eb789dd6c0a10aa5624609b05351e17e031",
-      "bytes": 14241
+      "sha256": "7dae429e552debf027837ca4d78430252f47efafb44f8036a0bba0298c7288e9",
+      "bytes": 14262
     }
   ]
 }

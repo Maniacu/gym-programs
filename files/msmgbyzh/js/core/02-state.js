@@ -241,7 +241,7 @@ try{
 }catch(e){_stateMirrorParsed={};}
 let state=normalizeStateSchema(_stateMirrorParsed);
 if(!_stateMirrorValid||+(_stateMirrorParsed.schemaVersion||0)!==STATE_SCHEMA_VERSION){
-  try{ localStorage.setItem("gymTracker",JSON.stringify(state)); }catch(e){}
+  try{ localStorage.setItem("gymTracker",JSON.stringify(state)); }catch(e){qerr(e,"02-state")}
 }
 // The July 2026 5up rebuild changed exercise order and count. Slot keys contain the
 // old exercise index, so clear only those transient 5up slots once; completed history,
@@ -254,7 +254,7 @@ if(!state.__mig5upSmartVolume){
     const draft=JSON.parse(localStorage.getItem("gymSess")||"null");
     if(draft&&draft.target&&String(draft.target.key||"").indexOf("5up_")===0)localStorage.removeItem("gymSess");
     localStorage.setItem("gymTracker",JSON.stringify(state));
-  }catch(e){}
+  }catch(e){qerr(e,"02-state")}
 }
 // A previously downloaded OTA payload can contain the old built-in `5up` and is applied
 // over program.js during boot. Invalidate that payload once so v3.27's bundled rebuild
@@ -265,23 +265,71 @@ if(!state.__migBundled5up327){
     localStorage.removeItem("__progcache");
     localStorage.removeItem("__progver");
     localStorage.removeItem("__progupd");
-  }catch(e){}
+  }catch(e){qerr(e,"02-state")}
   state.__migBundled5up327=true;
-  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){}
+  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){qerr(e,"02-state")}
 }
 // Concept I starts with a short timeline so the Train home is calm on first view.
 // The user can still tap View all, and that choice remains persistent afterwards.
 if(!state.__migConceptI331){
   state.homeExpanded=false;
   state.__migConceptI331=true;
-  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){}
+  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){qerr(e,"02-state")}
 }
+/* 2026-08-04 — the seated-lateral-raise repair, and the fork problem behind it.
+ *
+ * Two things went wrong here, and neither is fixable by editing a built-in program:
+ *
+ * 1. A custom program is a FORK — a frozen copy of the built-in it was based on. Rebuilding
+ *    that built-in therefore does nothing at all for anyone training the fork, which is why
+ *    an approved rewrite of `stier5` appeared on this device to have changed nothing.
+ * 2. The pre-rebuild forks carry SEATED lateral raises, which need a bench dragged over to
+ *    the cable stack. In a busy gym that is not a suboptimal pick, it is a movement the user
+ *    cannot perform at all — so it has to go regardless of which program they end up on.
+ *
+ * So: repair every custom program by content (not by id — any device may hold one), then
+ * move anyone still sitting on a stale fork onto the split that superseded it. The fork is
+ * KEPT, never deleted. It is the user's own work and switching back must stay possible —
+ * just without the movement they cannot do in it.
+ *
+ * Renaming the exercise does orphan its logged sets, since history is name-keyed. That is
+ * the right trade here: standing and seated cable laterals load differently enough that the
+ * old numbers would be a misleading starting point anyway.
+ */
+if(!state.__migStandingLateral354){
+  const SEATED=/(cable seated lateral|seated cable lateral|seated side lateral|one-?arm incline lateral)/i;
+  const STAND=(window.LIB||[]).find(x=>x.n==="Standing Low-Pulley Deltoid Raise");
+  const CUE="Standing at a low pulley, cable running behind the legs, one arm at a time — no bench needed. Pronate the palm, raise slightly in front of the frontal plane, and stop at shoulder height.";
+  const custom=state.customPrograms||{};
+  const optsOf=p=>{ const out=[]; (((p||{}).prog||{}).days||[]).forEach(d=>(d.ex||[]).forEach(x=>(x.opts||[]).forEach(o=>out.push(o)))); return out; };
+  /* Capture staleness BEFORE repairing, or the repair erases the evidence for the move. */
+  const onStaleFork=!!(state.programId&&custom[state.programId]&&optsOf(custom[state.programId]).some(o=>SEATED.test(String(o.n||""))));
+  let fixed=0;
+  if(STAND) Object.keys(custom).forEach(id=>optsOf(custom[id]).forEach(o=>{
+    if(!SEATED.test(String(o.n||"")))return;
+    o.n="Cable Lateral Raise"; o.img=STAND.img; o.eq="cable"; o.cue=CUE; fixed++;
+  }));
+  let moved=false;
+  if(onStaleFork&&window.PROGRAMS&&window.PROGRAMS.stier5){
+    state.programId="stier5"; moved=true;
+    /* A half-finished session still points at the fork's slot keys; leaving it would reopen
+       the old day on top of the new program. */
+    try{ const draft=JSON.parse(localStorage.getItem("gymSess")||"null");
+      if(draft&&draft.target&&String(draft.target.key||"").indexOf("custom_")===0)localStorage.removeItem("gymSess"); }catch(e){qerr(e,"02-state")}
+  }
+  /* Never change someone's program silently — app.js surfaces this once, then clears it. */
+  if(moved)state.__lateralNotice="Switched to the 5-Day S-Tier Split. Your custom program is still saved under Program & days.";
+  else if(fixed)state.__lateralNotice="Seated lateral raises replaced with the standing cable version — no bench needed.";
+  state.__migStandingLateral354=true;
+  try{localStorage.setItem("gymTracker",JSON.stringify(state));}catch(e){qerr(e,"02-state")}
+}
+
 let activeProg=state.programId||null;
 let profile=state.profile||null;
 
 function save(){
   state.persistenceRevision=Math.max(Date.now(),(+state.persistenceRevision||0)+1);
-  try{localStorage.setItem("gymTrackerPendingRevision",String(state.persistenceRevision));}catch(e){}
+  try{localStorage.setItem("gymTrackerPendingRevision",String(state.persistenceRevision));}catch(e){qerr(e,"02-state")}
   /* Queue the normalized transaction first. A localStorage quota failure must never be
      able to prevent the durable repository from receiving the in-memory state. */
   if(typeof queueDurableStateSave==="function")queueDurableStateSave(state);
@@ -296,7 +344,7 @@ function save(){
       mirror.durablePhotoPayload=true;raw=JSON.stringify(mirror);
     }
     localStorage.setItem("gymTracker",raw);
-    try{localStorage.removeItem("gymTrackerPendingRevision");}catch(e){}
+    try{localStorage.removeItem("gymTrackerPendingRevision");}catch(e){qerr(e,"02-state")}
     // Keep the Downloads auto-backup current on every write, not just workout finish
     // (typeof guard: autoBackup lives in the feature layer, loaded after this file).
     if(typeof autoBackup==="function")autoBackup();
@@ -329,7 +377,7 @@ try{
     window.addEventListener("pagehide",flushSave);
     document.addEventListener("visibilitychange",function(){ if(document.hidden)flushSave(); });
   }
-}catch(e){}
+}catch(e){qerr(e,"02-state")}
 
 /* ---------- session draft (today's in-progress workout, survives app kill) ---------- */
 /* Stored under its own small localStorage key ("gymSess"), separate from the main state
