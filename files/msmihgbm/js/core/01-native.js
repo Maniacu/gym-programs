@@ -65,7 +65,7 @@ function aiFetchNative(url, apiKey, body){
 /** Real installed APK version name, e.g. "3.3.0". Falls back to a hardcoded string when
  *  the bridge isn't available (browser dev) — keep this in sync with app/build.gradle's
  *  versionName so a stale fallback string can't be mistaken for the real build. */
-function appVer(){ return nativeGet("appVersion") || "3.56.0"; }
+function appVer(){ return nativeGet("appVersion") || "3.58.1"; }
 
 function nativeJSON(fn, ...args){
   const raw=nativeGet(fn,...args); if(!raw)return {};

@@ -41,7 +41,7 @@ function swapCandidates(m,exObj,q){
   function add(x,label){ if(!x||seen[x.id||x.n])return; seen[x.id||x.n]=1; out.push({x:x,label:label||x.eq||""}); }
   function pseudo(id,n,mus,eq,img,cue){ return {id:id,n:n,m:mus,cat:mus,eq:eq,img:img,cue:cue}; }
   if(m==="Rear delts"||/rear|reverse|face pull|y-raise|trap-3/.test(base)){
-    add(pseudo("Reverse_Cable_Flye","Reverse Cable Flye","Rear delts","cable","img/lib/Cable_Rear_Delt_Fly.jpg","Cross cables, drive arms out/back, pause and control the return."),"recommended");
+    add(pseudo("Reverse_Cable_Flye","Reverse Cable Flye","Rear delts","cable","img/lib/Cable_Rear_Delt_Fly.webp","Cross cables, drive arms out/back, pause and control the return."),"recommended");
     ["Cable Rear Delt Fly","Reverse Machine Flyes","Face Pull","Bent Over Dumbbell Rear Delt Raise With Head On Bench","Reverse Flyes"].forEach(n=>add(LIB.find(e=>e.n===n),"recommended"));
     LIB.filter(x=>/rear|reverse|face pull/i.test(x.n)).forEach(x=>add(x,"related"));
   }

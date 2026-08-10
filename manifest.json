@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.58.0+ota.msmhw9u0",
-  "appVersion": "3.58.0",
-  "minNative": 109,
-  "filesDir": "files/msmhw9u0",
-  "builtAt": "2026-08-10T00:30:30.600Z",
+  "version": "3.58.1+ota.msmihgbm",
+  "appVersion": "3.58.1",
+  "minNative": 110,
+  "filesDir": "files/msmihgbm",
+  "builtAt": "2026-08-10T00:46:58.786Z",
   "files": [
     {
       "path": "index.html",
@@ -28,7 +28,7 @@
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "92856c496f2b000e1da5f9085d8b7cddfee9f773229109b2826c6d0423ca8851",
+      "sha256": "daf82a3d9e4f5f6848552c205af08aaf65742111b47bdd4cafa88dc05fe34b7e",
       "bytes": 15214
     },
     {
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "0ae3c606c1ab8d87f3a5e83837f61fd4f2e177aa0bdb3718141f3a74924d6dd4",
-      "bytes": 327817
+      "sha256": "e37bfe9a19109704625c46c875bf88bea8ef953607b68500624ad7700cffee97",
+      "bytes": 328494
     },
     {
       "path": "js/views/view-exercises.js",

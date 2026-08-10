@@ -448,6 +448,48 @@ function openDayDetail(dateStr){
    tab is short enough to take in at a glance, matching how Today's hero was decluttered.
    No function here is new — every section below already existed, just regrouped. */
 let statsTab="overview";
+/* ---------- strength standards card ----------
+   Nothing in the app answered "am I actually strong" — only "am I recovered" and "am I
+   progressing". This reads the best e1RM already recorded for each standard-bearing lift
+   and places it on the Beginner->Elite ladder for the user's bodyweight and sex.
+
+   It is deliberately quiet when it cannot say anything honest: without a bodyweight there
+   is no ratio to compute, and a program with no barbell bench/squat/deadlift/press/row
+   simply has nothing to score. Saying so is better than scoring a hack squat against
+   back-squat standards. */
+function strengthStandardsHTML(){
+  const bw=+((state.profile||{}).weight)||0, sex=(state.profile||{}).sex||"M";
+  if(!bw) return "<div class='insight'><b>Strength level</b><br>Add your bodyweight in "+
+    "Settings &rsaquo; Personal details and this will rank each big lift against strength standards.</div>";
+  const rows=[];
+  Object.keys(state.history||{}).forEach(name=>{
+    const lift=strengthLiftFor(name); if(!lift)return;
+    const best=(state.history[name]||[]).reduce((m,x)=>Math.max(m,+x.e||0),0);
+    if(!best)return;
+    const r=strengthScoreFor(lift,best,bw,sex); if(!r)return;
+    const prev=rows.find(x=>x.lift===lift);
+    if(prev){ if(best>prev.e1rm)Object.assign(prev,{e1rm:best,name:name,res:r}); return; }
+    rows.push({lift:lift,name:name,e1rm:best,res:r});
+  });
+  if(!rows.length) return "<div class='insight'><b>Strength level</b><br>No lift with a published "+
+    "standard is in your log yet. Barbell bench, back squat, deadlift, overhead press and barbell row "+
+    "are the five that can be ranked — machine and supported variants have different standards, so "+
+    "they are left out rather than scored inaccurately.</div>";
+  const overall=Math.round(rows.reduce((n,x)=>n+x.res.score,0)/rows.length);
+  const band=STRENGTH_LEVELS[Math.min(STRENGTH_LEVELS.length-1,Math.floor(overall/25))];
+  const bars=rows.sort((a,b)=>b.res.score-a.res.score).map(x=>{
+    const nx=x.res.next?("&nbsp;·&nbsp;next level at "+Math.round(toDisp(x.res.next))+" "+unit):"&nbsp;·&nbsp;top of the scale";
+    return "<div class='stdRow'><div class='stdTop'><span class='stdName'>"+esc(x.lift)+"</span>"+
+      "<span class='stdVal'>"+Math.round(toDisp(x.e1rm))+" "+unit+"</span></div>"+
+      "<div class='stdBar'><i style='width:"+Math.max(2,x.res.score)+"%'></i></div>"+
+      "<div class='stdMeta'>"+esc(x.res.level)+nx+"</div></div>";
+  }).join("");
+  return "<div class='stdCard'><div class='stdHead'><div><div class='stdEyebrow'>STRENGTH LEVEL</div>"+
+    "<div class='stdBig'>"+esc(band)+"</div><div class='stdSub'>across "+rows.length+" ranked lift"+(rows.length===1?"":"s")+
+    " at "+Math.round(toDisp(bw))+" "+unit+" bodyweight</div></div>"+homeRing(overall,null,"level")+"</div>"+bars+
+    "<div class='stdFoot'>Standards are bodyweight multiples, corrected for bodyweight. Not age-adjusted.</div></div>";
+}
+
 function renderStats(){
   const v=document.getElementById("v-stats"), h=state.workoutHistory||[], pr=state.personalRecords||{}, yr=new Date().getFullYear();
   let vol=0; h.filter(e=>e.date.slice(0,4)==yr).forEach(e=>vol+=e.vol||0);
@@ -460,7 +502,8 @@ function renderStats(){
       plannedVsActualHTML(6)+
       "<div class='minirow'><button onclick='openProgressTimeline()'>Full timeline</button><button onclick='openWeeklyReview()'>Weekly review</button></div>";
   } else if(statsTab==="analysis"){
-    inner=smartGrowthScorecardsHTML()+
+    inner=strengthStandardsHTML()+
+      smartGrowthScorecardsHTML()+
       (typeof volumeResponseHTML==="function"?"<h3 style='margin:14px 2px 10px'>Your volume response</h3>"+volumeResponseHTML():"")+
       (typeof smartCoverageHTML==="function"?"<h3 style='margin:14px 2px 10px'>Exercise coverage</h3>"+smartCoverageHTML():"")+
       planAuditHTML()+
