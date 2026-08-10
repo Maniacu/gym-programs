@@ -4,6 +4,16 @@
  * a way to show a toast or vibrate from its very first line, and neither touches state
  * or programs, so they live here rather than forcing a dependency on a later file. */
 
+/* ---------- swallowed-error breadcrumb ---------- */
+/* Most `try{...}catch(e){}` in this app are deliberate: a failed localStorage write, an
+ * absent native bridge method or a missing DOM node must never take the workout down with
+ * it. But swallowing SILENTLY is what made two real bugs expensive to find — a stale OTA
+ * bundle and a migration that never ran both failed invisibly and looked like "nothing
+ * happened". qerr keeps the recovery behaviour and leaves a breadcrumb in logcat
+ * (`adb logcat -s GymTrackerJS`), so the next silent failure is one command away from
+ * being visible. Never throws, whatever it is handed. */
+function qerr(e,where){ try{ console.warn("[gym] swallowed"+(where?" @"+where:"")+":", (e&&e.stack)||e); }catch(_){} }
+
 /* ---------- theme (light/dark) ---------- */
 /* Applied synchronously in index.html's <head> (before any CSS/JS below it runs) to avoid
  * a flash of the wrong theme on load. This just keeps the rest of the app in sync with
@@ -302,6 +312,10 @@ const IC={
 "arrows-exchange":"<path d=\"M7 10h14l-4 -4\" /> <path d=\"M17 14h-14l4 4\" />",
 "barbell":"<path d=\"M2 12h1\" /> <path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\" /> <path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M9 12h6\" /> <path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\" /> <path d=\"M22 12h-1\" />",
 "bolt":"<path d=\"M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11\" />",
+/* Settings > Exercise variability asked for this one and it did not exist, so row() fell
+   through to its "render the name as text" fallback and the literal word `shuffle` was
+   printed in the settings list where the icon belongs. */
+"shuffle":"<path d=\"M18 4l3 3l-3 3\" /> <path d=\"M18 20l3 -3l-3 -3\" /> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\" /> <path d=\"M3 17h3a5 5 0 0 0 5 -5a5 5 0 0 1 5 -5h5\" />",
 "books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M5 8h4\" /> <path d=\"M9 16h4\" /> <path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\" /> <path d=\"M14 9l4 -1\" /> <path d=\"M16 16l3.923 -.98\" />",
 "calendar":"<path d=\"M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z\" /> <path d=\"M16 3v4\" /> <path d=\"M8 3v4\" /> <path d=\"M4 11h16\" /> <path d=\"M11 15h1\" /> <path d=\"M12 15v3\" />",
 "chart-line":"<path d=\"M4 19l16 0\" /> <path d=\"M4 15l4 -6l4 2l4 -5l4 4\" />",

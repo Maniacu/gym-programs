@@ -6,7 +6,7 @@
 /** Fire-and-forget call, any number of arguments (spread onto the Java method call).
  *  Silently no-ops if the bridge isn't present (e.g. running in a plain browser during
  *  development) or the named method doesn't exist. */
-function native(fn, ...args){ try{ if(window.GymNative&&GymNative[fn]) GymNative[fn](...args); }catch(e){} }
+function native(fn, ...args){ try{ if(window.GymNative&&GymNative[fn]) GymNative[fn](...args); }catch(e){qerr(e,"01-native")} }
 
 /** Fire-and-forget call to a zero-arg bridge method. `native(fn)` with no extra args
  *  already spreads to zero arguments and would work too — this exists so a call site
@@ -14,11 +14,11 @@ function native(fn, ...args){ try{ if(window.GymNative&&GymNative[fn]) GymNative
  *  written to guard against: some WebView versions fail to reflection-match a declared
  *  no-arg @JavascriptInterface method if even one (possibly `undefined`) argument is
  *  passed through a generic wrapper. */
-function native0(fn){ try{ if(window.GymNative&&GymNative[fn]) GymNative[fn](); }catch(e){} }
+function native0(fn){ try{ if(window.GymNative&&GymNative[fn]) GymNative[fn](); }catch(e){qerr(e,"01-native")} }
 
 /** Synchronous call that returns a value (e.g. readDownloadBackup(), appVersion()).
  *  Returns "" on any failure so callers never need to null-check. */
-function nativeGet(fn, ...args){ try{ if(window.GymNative&&GymNative[fn]) return GymNative[fn](...args)||""; }catch(e){} return ""; }
+function nativeGet(fn, ...args){ try{ if(window.GymNative&&GymNative[fn]) return GymNative[fn](...args)||""; }catch(e){qerr(e,"01-native")} return ""; }
 
 /** Fallback for the one-time file:// -> HTTPS app-origin migration. index.html restores
  *  this before any bundle scripts so theme/units are available synchronously; keeping
@@ -65,7 +65,7 @@ function aiFetchNative(url, apiKey, body){
 /** Real installed APK version name, e.g. "3.3.0". Falls back to a hardcoded string when
  *  the bridge isn't available (browser dev) — keep this in sync with app/build.gradle's
  *  versionName so a stale fallback string can't be mistaken for the real build. */
-function appVer(){ return nativeGet("appVersion") || "3.54.0"; }
+function appVer(){ return nativeGet("appVersion") || "3.56.0"; }
 
 function nativeJSON(fn, ...args){
   const raw=nativeGet(fn,...args); if(!raw)return {};
@@ -89,50 +89,50 @@ function nativeB64JSON(raw){
     const hasBridge=()=>!!(window.GymNative&&GymNative.secureHasSecret);
     const legacy=get.call(localStorage,"gymAIKey");
     if(hasBridge()){
-      let secured=false;try{secured=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){}
+      let secured=false;try{secured=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){qerr(e,"01-native")}
       if(secured){ if(legacy)remove.call(localStorage,"gymAIKey"); }
       else if(legacy){
         let moved=false;
-        try{moved=GymNative.secureSetSecret("ai_api_key",legacy)===true;}catch(e){}
-        let verified=false;try{verified=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){}
+        try{moved=GymNative.secureSetSecret("ai_api_key",legacy)===true;}catch(e){qerr(e,"01-native")}
+        let verified=false;try{verified=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){qerr(e,"01-native")}
         if(moved&&verified)remove.call(localStorage,"gymAIKey");
       }
     }
     p.getItem=function(key){
       if(this===localStorage&&key==="gymAIKey"&&hasBridge()){
-        try{if(GymNative.secureHasSecret("ai_api_key")===true)return "sk-ant-keystore-protected";}catch(e){}
+        try{if(GymNative.secureHasSecret("ai_api_key")===true)return "sk-ant-keystore-protected";}catch(e){qerr(e,"01-native")}
       }
       const value=get.call(this,key);
       if(this===localStorage&&key==="gymTracker"&&!value&&window.GymNative&&GymNative.readStateSnapshot){
         const snapshot=nativeGet("readStateSnapshot");
-        if(snapshot){try{const parsed=JSON.parse(snapshot);if(parsed&&typeof parsed==="object")return snapshot;}catch(e){}}
+        if(snapshot){try{const parsed=JSON.parse(snapshot);if(parsed&&typeof parsed==="object")return snapshot;}catch(e){qerr(e,"01-native")}}
       }
       return value;
     };
     p.setItem=function(key,value){
       if(this===localStorage&&key==="gymAIKey"&&hasBridge()){
         let stored=false;
-        try{stored=GymNative.secureSetSecret("ai_api_key",String(value))===true;}catch(e){}
+        try{stored=GymNative.secureSetSecret("ai_api_key",String(value))===true;}catch(e){qerr(e,"01-native")}
         if(stored){remove.call(this,key);return;}
       }
       set.call(this,key,value);
       if(this===localStorage&&key==="gymTracker"&&window.GymNative&&GymNative.saveStateSnapshot){
-        try{GymNative.saveStateSnapshot(String(value));}catch(e){}
+        try{GymNative.saveStateSnapshot(String(value));}catch(e){qerr(e,"01-native")}
       }
     };
     p.removeItem=function(key){
       if(this===localStorage&&key==="gymAIKey"&&window.GymNative&&GymNative.secureDeleteSecret){
-        try{GymNative.secureDeleteSecret("ai_api_key");}catch(e){}
+        try{GymNative.secureDeleteSecret("ai_api_key");}catch(e){qerr(e,"01-native")}
       }
       remove.call(this,key);
     };
     Object.defineProperty(p,"__gymProtectedStorage",{value:true,configurable:false});
-  }catch(e){}
+  }catch(e){qerr(e,"01-native")}
 })();
 
 function nativeSecretStatus(){
   if(!(window.GymNative&&GymNative.secureHasSecret))return {native:false,protected:false};
-  let protectedAtRest=false;try{protectedAtRest=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){}
+  let protectedAtRest=false;try{protectedAtRest=GymNative.secureHasSecret("ai_api_key")===true;}catch(e){qerr(e,"01-native")}
   return {native:true,protected:protectedAtRest};
 }
 function nativeSnapshotStatus(){return nativeJSON("snapshotStatus");}
@@ -166,7 +166,7 @@ function requestNativeHealthRecovery(){
     const tm=setTimeout(()=>finish({ok:false,state:"timeout",error:"Health Connect did not respond"}),15000);
     window.__healthRecoveryResult=b64=>{
       const result=nativeB64JSON(b64);
-      if(result&&result.ok)try{localStorage.setItem("gymHealthRecovery",JSON.stringify(result));}catch(e){}
+      if(result&&result.ok)try{localStorage.setItem("gymHealthRecovery",JSON.stringify(result));}catch(e){qerr(e,"01-native")}
       finish(result);
     };
     try{GymNative.readHealthRecovery();}catch(e){finish({ok:false,state:"error",error:"Could not start Health Connect"});}
@@ -251,6 +251,6 @@ function installNativeVoiceButton(){
     b.setAttribute("aria-label","Workout voice commands");b.title="Voice commands";
     b.style.cssText="min-width:42px;height:42px;border:1px solid var(--line);border-radius:50%;background:var(--card);color:var(--txt);font-size:19px";
     b.onclick=startVoiceCommand;head.appendChild(b);
-  }catch(e){}
+  }catch(e){qerr(e,"01-native")}
 }
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",installNativeVoiceButton);else setTimeout(installNativeVoiceButton,0);

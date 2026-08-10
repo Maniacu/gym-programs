@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.56.0+ota.msmgrw5y",
+  "version": "3.56.0+ota.msmgwelf",
   "appVersion": "3.56.0",
   "minNative": 106,
-  "filesDir": "files/msmgrw5y",
-  "builtAt": "2026-08-09T23:59:06.646Z",
+  "filesDir": "files/msmgwelf",
+  "builtAt": "2026-08-10T00:02:37.155Z",
   "files": [
     {
       "path": "index.html",
@@ -13,8 +13,8 @@
     },
     {
       "path": "css/app.css",
-      "sha256": "e5a05b0176d8e62d8054099ea5ebadb24bcb28227ab5d47f81b03e9f1af4fe84",
-      "bytes": 88557
+      "sha256": "f7ab7a81167146d591671f4d9be86a343f1e4a92eecb766cea752f2d8903947a",
+      "bytes": 88582
     },
     {
       "path": "js/app.js",
@@ -113,8 +113,8 @@
     },
     {
       "path": "js/views/view-stats.js",
-      "sha256": "5505c7ee53f06a812f8e74af82db0eb1c4bf081d97074af6eaf68967b350c845",
-      "bytes": 41167
+      "sha256": "b59c82c2fd2d557946f19d72b2f58a7f31cab1506473dd760e49781b867231f3",
+      "bytes": 41592
     },
     {
       "path": "js/views/view-workouts.js",

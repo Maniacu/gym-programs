@@ -64,7 +64,7 @@ function compressPhotoFile(file){
 }
 function openPhotos(){
   const arr=state.progressPhotos||[]; document.getElementById("detTitle").textContent="Progress photos";
-  document.getElementById("detBody").innerHTML="<input id='ph_in' type='file' accept='image/*'><div class='photoGrid'>"+arr.slice(-8).reverse().map(p=>"<img src='"+p.data+"' title='"+escAttr(p.date)+"'>").join("")+"</div>";
+  document.getElementById("detBody").innerHTML="<input id='ph_in' type='file' accept='image/*'><div class='photoGrid'>"+arr.slice(-8).reverse().map(p=>"<img alt='' src='"+p.data+"' title='"+escAttr(p.date)+"'>").join("")+"</div>";
   document.getElementById("ph_in").onchange=async e=>{ const f=e.target.files[0]; if(!f)return; toast("Preparing photo..."); try{ const data=await compressPhotoFile(f); state.progressPhotos=state.progressPhotos||[];state.progressPhotos.push({id:"photo_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,6),date:todayStr(),createdAt:new Date().toISOString(),data:data}); state.progressPhotos=trimPhotosForStorage(state.progressPhotos,false); if(save()){openPhotos(); toast("Photo saved");} }catch(err){toast("Could not read photo");} };
   detDlg.showModal();
 }
@@ -231,7 +231,7 @@ function openProgressTimeline(){
   (state.progressPhotos||[]).forEach((p,i)=>items.push({date:p.date,type:"Photo",title:"Progress photo",sub:"Photo "+(i+1),img:p.data}));
   items.sort((a,b)=>a.date<b.date?1:a.date>b.date?-1:0);
   document.getElementById("detTitle").textContent="Progress timeline";
-  document.getElementById("detBody").innerHTML=items.length?items.slice(0,80).map(x=>"<div class='hitem'><div><div class='d'>"+esc(x.type)+" · "+esc(x.title)+"</div><div class='m'>"+esc(x.date)+" · "+esc(x.sub||"")+"</div></div>"+(x.img?"<img src='"+x.img+"' style='width:54px;height:72px;object-fit:cover;border-radius:8px'>":"")+"</div>").join(""):"<div class='empty'><div class='big'>No timeline yet</div>Log workouts, measurements, PRs or photos.</div>";
+  document.getElementById("detBody").innerHTML=items.length?items.slice(0,80).map(x=>"<div class='hitem'><div><div class='d'>"+esc(x.type)+" · "+esc(x.title)+"</div><div class='m'>"+esc(x.date)+" · "+esc(x.sub||"")+"</div></div>"+(x.img?"<img alt='' src='"+x.img+"' style='width:54px;height:72px;object-fit:cover;border-radius:8px'>":"")+"</div>").join(""):"<div class='empty'><div class='big'>No timeline yet</div>Log workouts, measurements, PRs or photos.</div>";
   detDlg.showModal();
 }
 
@@ -248,14 +248,19 @@ function calendarHTML(){
   const ym=_calYear+"-"+String(_calMon+1).padStart(2,"0");
   const first=new Date(_calYear,_calMon,1), startWd=(first.getDay()+6)%7, daysInMonth=new Date(_calYear,_calMon+1,0).getDate();
   const monthName=first.toLocaleString("default",{month:"long"});
+  /* The leading offset is a grid-column-start on the 1st, not a run of empty spacer divs.
+     The spacers were `.calday` too, so they inherited aspect-ratio:1 and — carrying no
+     content to size against — kept an intrinsic 80px that stretched the first week's row
+     taller than every other one. A declarative start column has no box to misbehave, and
+     drops up to six nodes per render. */
   let cells="";
-  for(let i=0;i<startWd;i++) cells+="<div class='calday empty'></div>";
   for(let d=1;d<=daysInMonth;d++){
     const dateStr=ym+"-"+String(d).padStart(2,"0");
     const hasWorkout=trained.has(dateStr),cls="calday"+(hasWorkout?" trained":"")+(dateStr===todayStr()?" today":"");
+    const pos=d===1&&startWd?" style='grid-column-start:"+(startWd+1)+"'":"";
     cells+=hasWorkout
-      ?"<button type='button' class='"+cls+"' data-date='"+dateStr+"' aria-label='"+dateStr+", workout completed' title='Open this day&#39;s workout'>"+d+"<span class='calStatus' aria-hidden='true'>✓</span></button>"
-      :"<div class='"+cls+"' aria-label='"+dateStr+", no workout'>"+d+"</div>";
+      ?"<button type='button' class='"+cls+"'"+pos+" data-date='"+dateStr+"' aria-label='"+dateStr+", workout completed' title='Open this day&#39;s workout'>"+d+"<span class='calStatus' aria-hidden='true'>✓</span></button>"
+      :"<div class='"+cls+"'"+pos+" aria-label='"+dateStr+", no workout'>"+d+"</div>";
   }
   const thisMonthCount=[...trained].filter(dt=>dt.slice(0,7)===ym).length;
   return "<div class='calstats'>"+

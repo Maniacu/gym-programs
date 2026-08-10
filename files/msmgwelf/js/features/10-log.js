@@ -168,7 +168,25 @@ function addSupersetAuto(ei,m){ const p=supersetPartner(m); if(!p){toast("No sup
 
 /* ---------- progression rule + next-weight suggestion ---------- */
 const PROG_RULES={double:"Double progression",topback:"Top set + back-offs",fixed:"Fixed load",body:"Bodyweight / timed"};
-function progRule(ei){ const o=logOpt(ei), r=state.slots[logId(ei)]||{}; if(r.rule)return r.rule; if(/body only|none/i.test(o.eq||"")||/amrap|sec|45s|max/i.test(o.r||""))return "body"; return "double"; }
+/* Has this slot ever actually been LOADED? Weighted dips, weighted pull-ups and weighted
+   hanging leg raises all ship tagged `body only` — the equipment field describes the base
+   movement, not what the user hangs off it. Checking the slot's own history is the only
+   honest way to tell a genuine bodyweight lift from a loaded one. */
+function slotEverLoaded(ei){
+  if(logGetSets(ei).some(s=>+s.w>0))return true;
+  return slotLog(ei).some(l=>+l.w>0||(Array.isArray(l.s)&&l.s.some(p=>+((p||[])[0])>0)));
+}
+/* `body only` is a DEFAULT, not a verdict. The old rule locked every bodyweight-tagged
+   exercise into "add reps, never load" forever, and core was the muscle that suffered most:
+   the abs movements in the library are almost all `body only`, so no ab exercise could ever
+   progress by weight even with a dumbbell between the feet. The moment a load appears in
+   this slot's history, treat it as the loaded lift it has become. Genuinely timed work
+   (holds, AMRAP, seconds) still stays on the bodyweight rule, since there is no load to
+   progress there by definition. */
+function progRule(ei){ const o=logOpt(ei), r=state.slots[logId(ei)]||{}; if(r.rule)return r.rule;
+  if(/amrap|sec|45s|max/i.test(o.r||""))return "body";
+  if(/body only|none/i.test(o.eq||""))return slotEverLoaded(ei)?"double":"body";
+  return "double"; }
 function cycleProgRule(ei){ const a=Object.keys(PROG_RULES), cur=progRule(ei), n=a[(a.indexOf(cur)+1)%a.length]; state.slots[logId(ei)]=state.slots[logId(ei)]||{}; state.slots[logId(ei)].rule=n; save(); renderLog(); toast("Progression: "+PROG_RULES[n]); }
 function fatigueNote(ei){ const log=slotLog(ei).slice(-4); if(log.length<3)return ""; const last=log[log.length-1], prev=log.slice(0,-1), best=Math.max(...prev.map(x=>x.e||0)); if(best&&last.e<best*.95)return "Output dipped vs recent best - consider a lighter day."; if(log.slice(-3).every(x=>(x.e||0)<=best))return "Stalled recently - add reps first, then load, or deload 5-10%."; return ""; }
 /** Next-weight suggestion, reading RIR/reps from the last logged set (via slotLast,
@@ -176,9 +194,15 @@ function fatigueNote(ei){ const log=slotLog(ei).slice(-4); if(log.length<3)retur
 function advancedNextFromLog(opt,ll,rule){
   const hi=repHi(opt.r), lo=repLo(opt.r)||Math.max(1,hi-4), rir=ll.rir;
   const st=eqStepKg(opt), inc=w=>roundStep(w+st,st); // equipment-real increments
+  /* A deload has to actually deload. roundStep(w*.95) snaps back to w whenever 5% is
+     smaller than half an increment — at 20 kg on a 2.5 kg cable stack, "reduce 5% and
+     rebuild" returned 20 kg, so the app told the user to drop the weight and then handed
+     back the same weight, and the set that just failed was prescribed again unchanged.
+     Guarantee at least one real increment down, and never below a single increment. */
+  const dec=w=>Math.max(st,Math.min(roundStep(w*.95,st),w-st));
   if(rule==="fixed")return {kg:ll.w,why:"Fixed load: keep the weight and make reps cleaner."};
-  if(rule==="body")return {kg:ll.w,why:"Bodyweight/timed: add reps, seconds, tempo, or range."};
-  if(rir===0&&ll.r&&ll.r<lo)return {kg:roundStep(ll.w*.95,st),why:"0 RIR below the target range - reduce 5% and rebuild."};
+  if(rule==="body")return {kg:ll.w,why:"Bodyweight/timed: add reps, seconds, tempo, or range — or hold a dumbbell/plate and log the weight, and this switches to load progression."};
+  if(rir===0&&ll.r&&ll.r<lo)return {kg:dec(ll.w),why:"0 RIR below the target range - reduce 5% and rebuild."};
   if(rir===0)return {kg:ll.w,why:"True hard set. Repeat the load until reps climb."};
   if(rir!=null&&rir>=3&&ll.r&&ll.r>=hi-1)return {kg:inc(ll.w),why:"Too much in reserve near the top range - add weight."};
   if(rir!=null&&rir>=3)return {kg:ll.w,why:"Add 1-2 reps before load; last set had "+rir+" RIR."};
@@ -569,7 +593,7 @@ function renderBonusPicker(){
                  ||ri.pool.find(x=>exFor(x,x.m)===rg&&!seen[x.id]&&!inToday(x.n));
         if(cand){ seen[cand.id]=1; sugs.push({rg:rg,x:cand}); }
       });
-      h+=sugs.length?sugs.map(s=>"<div style='display:flex;align-items:center;gap:9px;margin-top:9px'><img src='"+escAttr(s.x.img)+"' style='width:44px;height:44px;border-radius:9px;object-fit:cover' onerror=\"this.style.visibility='hidden'\"><div style='flex:1;min-width:0'><div style='font-weight:700;font-size:14px'>"+esc(s.x.n)+"</div><div style='color:var(--muted);font-size:12px'>"+esc(s.rg)+" · "+esc(s.x.eq)+"</div></div><button data-bonus='"+escAttr(s.x.id)+"' style='background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 12px;font-weight:700;flex:0 0 auto'>+ Add</button></div>").join("")
+      h+=sugs.length?sugs.map(s=>"<div style='display:flex;align-items:center;gap:9px;margin-top:9px'><img alt='' src='"+escAttr(s.x.img)+"' style='width:44px;height:44px;border-radius:9px;object-fit:cover' onerror=\"this.style.visibility='hidden'\"><div style='flex:1;min-width:0'><div style='font-weight:700;font-size:14px'>"+esc(s.x.n)+"</div><div style='color:var(--muted);font-size:12px'>"+esc(s.rg)+" · "+esc(s.x.eq)+"</div></div><button data-bonus='"+escAttr(s.x.id)+"' style='background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;padding:8px 12px;font-weight:700;flex:0 0 auto'>+ Add</button></div>").join("")
         :"<p style='color:var(--muted)'>Nothing suitable found that isn't already in today's session.</p>";
     }
     document.getElementById("detBody").innerHTML=h;
@@ -633,7 +657,7 @@ function renderDayEditor(){
   const d=_dayEdit; if(!d)return;
   document.getElementById("detTitle").textContent="Edit "+d.day+" · "+d.title;
   const rows=d.list.map((e,i)=>{ const o=e.opts[0];
-    return "<div class='opt' data-de-row='"+i+"'><span data-dh='"+i+"' style='font-size:17px;padding:4px 8px 4px 2px;color:var(--muted);touch-action:none'>☰</span><img src='"+escAttr(o.img||"")+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(e.m+" · "+(o.r||""))+"</div></div>"+
+    return "<div class='opt' data-de-row='"+i+"'><span data-dh='"+i+"' style='font-size:17px;padding:4px 8px 4px 2px;color:var(--muted);touch-action:none'>☰</span><img alt='' src='"+escAttr(o.img||"")+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(e.m+" · "+(o.r||""))+"</div></div>"+
       "<button data-de='up' data-i='"+i+"'"+(i===0?" disabled":"")+">↑</button><button data-de='down' data-i='"+i+"'"+(i===d.list.length-1?" disabled":"")+">↓</button><button data-de='rm' data-i='"+i+"'>✕</button></div>"; }).join("");
   document.getElementById("detBody").innerHTML="<p style='color:var(--muted);margin-top:0'>Drag ☰ (or tap ↑ ↓) to reorder, ✕ to remove, then Save. The order you set sticks — automatic sorting is turned off for this day.</p>"+rows+
     "<div class='btnrow'><button class='s' id='deAdd'>＋ Add exercise</button><button id='deSave'>Save day</button></div>";
@@ -703,7 +727,7 @@ function renderAddEx(q){ const ql=q.toLowerCase(), MUS=MUSCLE_PICKER;
   let h="<input id='aeq' value=\""+q.replace(/"/g,"&quot;")+"\" placeholder='Search exercises…' style='width:100%;height:44px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:0 12px;margin-bottom:10px;font-size:15px'>";
   h+="<div class='msel'>"+MUS.map(mm=>"<button class='mm"+(_addMuscle===mm?" on":"")+"' data-m='"+escAttr(mm)+"'>"+esc(mm)+"</button>").join("")+"</div>";
   if(regions.length)h+="<div class='msel'>"+regions.map(rg=>"<button class='mm"+(_addRegion===rg?" on":"")+"' data-rg='"+escAttr(rg)+"'>"+esc(rg)+"</button>").join("")+"</div>";
-  h+=lib.slice(0,120).map(x=>"<div class='opt' data-id='"+x.id+"'><img src='"+x.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(x.n)+"</div><div class='s'>"+esc((exFor(x,x.m)||x.m)+" · "+x.eq)+"</div></div></div>").join("")||"<div style='color:var(--muted);padding:8px'>No matches.</div>";
+  h+=lib.slice(0,120).map(x=>"<div class='opt' data-id='"+x.id+"'><img alt='' src='"+x.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(x.n)+"</div><div class='s'>"+esc((exFor(x,x.m)||x.m)+" · "+x.eq)+"</div></div></div>").join("")||"<div style='color:var(--muted);padding:8px'>No matches.</div>";
   document.getElementById("detBody").innerHTML=h;
   const inp=document.getElementById("aeq"); inp.oninput=()=>{ const v=inp.value,ss=inp.selectionStart; renderAddEx(v); const n=document.getElementById("aeq"); n.focus(); try{n.setSelectionRange(ss,ss);}catch(e){} };
   document.querySelectorAll("#detBody .mm[data-m]").forEach(b=>b.onclick=()=>{ _addMuscle=_addMuscle===b.dataset.m?"":b.dataset.m; _addRegion=""; renderAddEx(document.getElementById("aeq").value); });
