@@ -126,7 +126,12 @@ function demoHTML(src){
   return "<div class='demowrap paused'><img alt='' class='detimg' id='demoImg' src='"+src+"' onerror=\"this.style.visibility='hidden'\"><span class='demobadge'>DEMO</span><div class='democtl'><button id='demoToggle'>Play</button><button id='demoStep'>Step</button></div></div>";
 }
 function playDemo(src){
-  stopDemo(); __demoSrc=src||""; __demoAlt=__demoSrc.replace(/\.jpg$/i,"_b.jpg"); __demoFrame=0;
+  /* The second demo frame is the same path with a _b suffix. Derive it from whatever
+     extension the image actually has, never a hardcoded one: this read /\.jpg$/ and went
+     silently inert the moment the library was re-encoded to WebP — the regex stopped
+     matching, the alternate frame resolved to the SAME file as the first, and every demo
+     played as a still image with no error anywhere. */
+  stopDemo(); __demoSrc=src||""; __demoAlt=demoAltSrc(__demoSrc); __demoFrame=0;
   musicFriendly(true);
   const alt=new Image(); alt.onload=function(){ __demoCache[__demoAlt]=true; }; alt.src=__demoAlt;
   const t=document.getElementById("demoToggle"), s=document.getElementById("demoStep");
