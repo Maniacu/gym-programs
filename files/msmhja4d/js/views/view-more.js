@@ -16,13 +16,14 @@ function privacyLabel(){const p=typeof aiPrivacyPrefs==="function"?aiPrivacyPref
 
 function renderMore(){
   const v=document.getElementById("v-more"), pr=getPriority();
-  const eq=profile&&profile.equip?(profile.equip==="db"?"Dumbbells":profile.equip==="home"?"Home":"Full gym"):"Full gym";
+  const _g=(typeof gymProfiles==="function")?activeGym():null;
+  const eq=_g?(_g.name+" · "+equipLabel(_g.equip)):"Full gym";
   v.innerHTML="<div class='topbar'><div class='t'>Settings</div><div class='r'>YOUR TRAINING</div></div><main>"+
     settingsSection("settings-training","Training",
       row("user","Personal details",(profile&&profile.age?profile.age+" yrs":"Edit"),"editProfile()")+
       row("calendar","Program & days",(PROGRAMS[activeProg]?PROGRAMS[activeProg].name:""),"editDays()")+
       row("target","Training priorities",pr.slice(0,2).join(", "),"openPrio()")+
-      row("barbell","Equipment",eq,"editEquip()")+
+      row("barbell","Gym & equipment",eq,"editEquip()")+
       row("target","Shape goals",shapeGoals().length+" selected","openShapeGoals()")+
       row("heartbeat","Readiness check",(readinessScore()?readinessScore()+"/5":"Today"),"openReadiness()")+
       row("refresh","Exercise rotations","","openRotationPlanner()")+
@@ -252,11 +253,84 @@ function editDays(){ document.getElementById("detTitle").textContent="Program & 
   document.querySelectorAll("#detBody .opt").forEach(el=>el.onclick=()=>{ setProgram(el.dataset.p); detDlg.close(); });
   detDlg.showModal(); }
 
-function editEquip(){ document.getElementById("detTitle").textContent="Equipment";
-  document.getElementById("detBody").innerHTML="<p style='color:var(--muted);margin-top:0'>We auto-pick variations you can do.</p>"+
-    OB_EQ.map(q=>"<div class='opt"+((profile&&profile.equip||"full")===q.v?" cur":"")+"' data-v='"+q.v+"'><div class='o'><div class='t'>"+q.t+"</div><div class='s'>"+q.d+"</div></div></div>").join("");
-  document.querySelectorAll("#detBody .opt").forEach(el=>el.onclick=()=>{ profile=profile||{}; profile.equip=el.dataset.v; state.profile=profile; save(); detDlg.close(); renderMore(); toast("Equipment updated"); });
-  detDlg.showModal(); }
+/* ---------- gym profiles ----------
+   `profile.equip` was a single global setting, which does not survive training in more than
+   one place: the same person has a full commercial gym on weekdays and dumbbells at home at
+   the weekend, and every auto-picked exercise variation was chosen for whichever of the two
+   they last told the app about.
+
+   Gyms are stored separately, and switching one writes its equipment into `profile.equip`.
+   That is deliberate — equipDefaultOpts(), the coach context and the program compiler all
+   already read profile.equip, so they keep working untouched and there is exactly one
+   effective value at any moment. The list is only ever a shortcut for setting it. */
+function gymProfiles(){
+  if(!Array.isArray(state.gyms)||!state.gyms.length){
+    const cur=(profile&&profile.equip)||"full";
+    /* Named generically rather than after the equipment: the row reads "name . equipment",
+       and seeding the name FROM the equipment made it read "Full gym . Full gym". */
+    state.gyms=[{id:"gym_"+Date.now().toString(36),name:"My gym",equip:cur}];
+    state.activeGym=state.gyms[0].id;
+  }
+  if(!state.gyms.some(g=>g.id===state.activeGym))state.activeGym=state.gyms[0].id;
+  return state.gyms;
+}
+function activeGym(){ const g=gymProfiles(); return g.find(x=>x.id===state.activeGym)||g[0]; }
+function equipLabel(v){ return (OB_EQ.find(q=>q.v===v)||{}).t||"Full gym"; }
+function setActiveGym(id){
+  const g=gymProfiles().find(x=>x.id===id); if(!g)return;
+  state.activeGym=g.id;
+  profile=profile||{}; profile.equip=g.equip; state.profile=profile;
+  save(); buildActive(); renderMore(); toast("Training at "+g.name);
+}
+function editEquip(){
+  const gyms=gymProfiles(), act=activeGym();
+  document.getElementById("detTitle").textContent="Gyms & equipment";
+  document.getElementById("detBody").innerHTML=
+    "<p style='color:var(--muted);margin-top:0'>Pick where you are training. The app auto-selects exercise variations that gym can actually do.</p>"+
+    gyms.map(g=>"<div class='opt"+(g.id===act.id?" cur":"")+"' data-gym='"+escAttr(g.id)+"'><div class='o'><div class='t'>"+esc(g.name)+"</div>"+
+      "<div class='s'>"+esc(equipLabel(g.equip))+(g.id===act.id?" · training here":"")+"</div></div>"+
+      "<button class='pvbtn' data-editgym='"+escAttr(g.id)+"'>Edit</button></div>").join("")+
+    "<div class='btnrow'><button id='gymAdd'>+ Add a gym</button></div>";
+  document.querySelectorAll("#detBody [data-gym]").forEach(el=>el.onclick=e=>{
+    if(e.target.closest("[data-editgym]"))return;
+    detDlg.close(); setActiveGym(el.dataset.gym);
+  });
+  document.querySelectorAll("#detBody [data-editgym]").forEach(b=>b.onclick=()=>openGymEditor(b.dataset.editgym));
+  document.getElementById("gymAdd").onclick=()=>{
+    askText("New gym","Name it — e.g. PureGym, Home","",v=>{
+      const name=String(v||"").trim(); if(!name)return;
+      const g={id:"gym_"+Date.now().toString(36),name:name,equip:"full"};
+      state.gyms.push(g); save(); openGymEditor(g.id);
+    });
+  };
+  detDlg.showModal();
+}
+function openGymEditor(id){
+  const g=gymProfiles().find(x=>x.id===id); if(!g)return;
+  document.getElementById("detTitle").textContent=g.name;
+  document.getElementById("detBody").innerHTML=
+    "<p style='color:var(--muted);margin-top:0'>What is available at "+esc(g.name)+"?</p>"+
+    OB_EQ.map(q=>"<div class='opt"+(g.equip===q.v?" cur":"")+"' data-v='"+q.v+"'><div class='o'><div class='t'>"+q.t+"</div><div class='s'>"+q.d+"</div></div></div>").join("")+
+    "<div class='btnrow'><button id='gymRename'>Rename</button>"+
+    (gymProfiles().length>1?"<button id='gymDel' class='danger'>Delete</button>":"")+"</div>";
+  document.querySelectorAll("#detBody .opt").forEach(el=>el.onclick=()=>{
+    g.equip=el.dataset.v;
+    /* Changing the gym you are standing in has to take effect now, not next time you
+       switch to it. */
+    if(state.activeGym===g.id){ profile=profile||{}; profile.equip=g.equip; state.profile=profile; }
+    save(); buildActive(); detDlg.close(); renderMore(); toast(g.name+": "+equipLabel(g.equip));
+  });
+  document.getElementById("gymRename").onclick=()=>askText("Rename gym","Name",g.name,v=>{
+    const n=String(v||"").trim(); if(n){ g.name=n; save(); openGymEditor(g.id); }
+  });
+  const del=document.getElementById("gymDel");
+  if(del)del.onclick=()=>{
+    state.gyms=state.gyms.filter(x=>x.id!==g.id);
+    if(state.activeGym===g.id){ const n=state.gyms[0]; state.activeGym=n.id; profile.equip=n.equip; state.profile=profile; }
+    save(); buildActive(); detDlg.close(); renderMore(); toast("Gym removed");
+  };
+  detDlg.showModal();
+}
 
 /* ---------- training priorities ---------- */
 let _pr=null;

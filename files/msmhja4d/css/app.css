@@ -75,10 +75,10 @@ main{padding:0 16px}
 .calhd{display:flex;align-items:center;justify-content:space-between;margin:0 2px 10px}
 .calhd .m{font-size:14px;font-weight:500}
 .calhd button{border:none;background:transparent;color:var(--muted);font-size:15px;padding:6px}
-.calwd{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;font-size:10px;color:var(--muted);text-align:center;margin-bottom:6px;font-weight:500}
-.calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:18px}
+.calwd{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;font-size:10px;color:var(--muted);text-align:center;margin-bottom:6px;font-weight:500}
+.calgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;margin-bottom:18px}
 .calhint{margin:-6px 2px 18px;padding:10px 12px;border-radius:11px;background:var(--card2);color:var(--muted);font-size:12px;line-height:1.4;text-align:center}
-.calday{aspect-ratio:1;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
+.calday{aspect-ratio:1;min-width:0;min-height:0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted)}
 .calday.trained{background:var(--card2);color:var(--accent);font-weight:600;cursor:pointer}
 .calday.trained:active{background:var(--accent);color:var(--ink)}
 .calday.today{border:1.5px solid var(--accent)}
@@ -421,7 +421,7 @@ textarea{width:100%;height:110px;background:var(--card2);color:var(--txt);border
 .homeSectionHead h3{font-size:15px;font-weight:500;letter-spacing:0}
 .homeSectionHead p{margin:3px 0 0;color:var(--muted);font-size:12px}
 .homeToggle{flex:0 0 auto;border:1px solid var(--line);background:var(--card2);color:var(--accent2);height:32px;border-radius:9px;padding:0 10px;font-size:11px;font-weight:600}
-.homeExList{display:grid;gap:0}
+.homeExList{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
 .homeEx2{border:none;border-bottom:1px solid var(--line);background:transparent;border-radius:0;padding:12px 0;display:flex;align-items:center;gap:12px;min-height:0}
 .homeExList .homeEx2:last-child{border-bottom:none}
 .homeEx2.done{border-color:var(--line)}
@@ -764,3 +764,26 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .growthScore summary{display:flex;justify-content:space-between;align-items:center;padding:12px;cursor:pointer}.growthScore summary div{display:flex;flex-direction:column;gap:2px}.growthScore summary span{font-size:11px;color:var(--muted)}.growthScore summary strong{color:var(--accent)}
 .growthMetrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:0 12px 10px}.growthMetrics span{background:var(--card2);border-radius:9px;padding:7px 5px;text-align:center;color:var(--muted);font-size:9px}.growthMetrics b{display:block;color:var(--txt);font-size:12px}
 .growthScore>p,.growthScore>small{display:block;margin:8px 12px;color:var(--muted);font-size:12px;line-height:1.45}.growthScore>p{color:var(--txt);font-weight:650}
+/* ---------- strength standards card ---------- */
+.stdCard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 14px}
+.stdHead{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:12px}
+.stdEyebrow{font-size:10px;letter-spacing:.12em;color:var(--accent);font-weight:800}
+.stdBig{font-size:22px;font-weight:800;line-height:1.15;margin-top:2px}
+.stdSub{color:var(--muted);font-size:12px;margin-top:3px}
+.stdRow{padding:9px 0;border-top:1px solid var(--line)}
+.stdTop{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.stdName{font-weight:700;font-size:14px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stdVal{color:var(--accent);font-weight:800;font-size:13px;flex:0 0 auto}
+.stdBar{height:6px;border-radius:3px;background:var(--card2);overflow:hidden;margin:6px 0 4px}
+.stdBar>i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.stdMeta{color:var(--muted);font-size:11.5px}
+.stdFoot{color:var(--muted);font-size:11px;margin-top:10px;padding-top:9px;border-top:1px solid var(--line)}
+/* The recovery screen is the one place with room for the figure to be read rather than
+   glanced at — at the 60px used inline on the Train tab, the anatomy is indistinguishable
+   from the capsules it replaced. Scoped so the compact inline uses are unaffected. */
+.recMap .bodyhm{gap:26px;margin:14px 0 6px}
+.recMap .bodyhm svg{width:104px}
+.recMap .bhLbl{font-size:10px;letter-spacing:.1em}
+/* The head and neck are pure silhouette with no muscle on them, so they were reading as
+   near-invisible against the card. A touch more contrast than the shadeable regions. */
+.bodyhm .base{fill:var(--card2);stroke:var(--line);stroke-width:1.1}

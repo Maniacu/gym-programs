@@ -4,6 +4,16 @@
  * a way to show a toast or vibrate from its very first line, and neither touches state
  * or programs, so they live here rather than forcing a dependency on a later file. */
 
+/* ---------- swallowed-error breadcrumb ---------- */
+/* Most `try{...}catch(e){}` in this app are deliberate: a failed localStorage write, an
+ * absent native bridge method or a missing DOM node must never take the workout down with
+ * it. But swallowing SILENTLY is what made two real bugs expensive to find — a stale OTA
+ * bundle and a migration that never ran both failed invisibly and looked like "nothing
+ * happened". qerr keeps the recovery behaviour and leaves a breadcrumb in logcat
+ * (`adb logcat -s GymTrackerJS`), so the next silent failure is one command away from
+ * being visible. Never throws, whatever it is handed. */
+function qerr(e,where){ try{ console.warn("[gym] swallowed"+(where?" @"+where:"")+":", (e&&e.stack)||e); }catch(_){} }
+
 /* ---------- theme (light/dark) ---------- */
 /* Applied synchronously in index.html's <head> (before any CSS/JS below it runs) to avoid
  * a flash of the wrong theme on load. This just keeps the rest of the app in sync with
@@ -302,6 +312,10 @@ const IC={
 "arrows-exchange":"<path d=\"M7 10h14l-4 -4\" /> <path d=\"M17 14h-14l4 4\" />",
 "barbell":"<path d=\"M2 12h1\" /> <path d=\"M6 8h-2a1 1 0 0 0 -1 1v6a1 1 0 0 0 1 1h2\" /> <path d=\"M6 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M9 12h6\" /> <path d=\"M15 7v10a1 1 0 0 0 1 1h1a1 1 0 0 0 1 -1v-10a1 1 0 0 0 -1 -1h-1a1 1 0 0 0 -1 1z\" /> <path d=\"M18 8h2a1 1 0 0 1 1 1v6a1 1 0 0 1 -1 1h-2\" /> <path d=\"M22 12h-1\" />",
 "bolt":"<path d=\"M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11\" />",
+/* Settings > Exercise variability asked for this one and it did not exist, so row() fell
+   through to its "render the name as text" fallback and the literal word `shuffle` was
+   printed in the settings list where the icon belongs. */
+"shuffle":"<path d=\"M18 4l3 3l-3 3\" /> <path d=\"M18 20l3 -3l-3 -3\" /> <path d=\"M3 7h3a5 5 0 0 1 5 5a5 5 0 0 0 5 5h5\" /> <path d=\"M3 17h3a5 5 0 0 0 5 -5a5 5 0 0 1 5 -5h5\" />",
 "books":"<path d=\"M5 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M9 4m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v14a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z\" /> <path d=\"M5 8h4\" /> <path d=\"M9 16h4\" /> <path d=\"M13.803 4.56l2.184 -.53c.562 -.135 1.133 .19 1.282 .732l3.695 13.418a1.02 1.02 0 0 1 -.634 1.219l-.133 .041l-2.184 .53c-.562 .135 -1.133 -.19 -1.282 -.732l-3.695 -13.418a1.02 1.02 0 0 1 .634 -1.219l.133 -.041z\" /> <path d=\"M14 9l4 -1\" /> <path d=\"M16 16l3.923 -.98\" />",
 "calendar":"<path d=\"M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z\" /> <path d=\"M16 3v4\" /> <path d=\"M8 3v4\" /> <path d=\"M4 11h16\" /> <path d=\"M11 15h1\" /> <path d=\"M12 15v3\" />",
 "chart-line":"<path d=\"M4 19l16 0\" /> <path d=\"M4 15l4 -6l4 2l4 -5l4 4\" />",
@@ -332,35 +346,131 @@ const IC={
 function icon(n,s){ const p=IC[n]; if(!p)return ""; s=s||22; return "<svg viewBox='0 0 24 24' width='"+s+"' height='"+s+"' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block;vertical-align:-0.18em'>"+p+"</svg>"; }
 
 /* ---------- front/back muscle silhouette (which muscles a day/program trains) ----------
-   Simplified region diagram (not full anatomy) in the style of the body-heatmap seen in
-   other trackers: a shared limb skeleton reused between the front and back figure, with
-   each region shaded on only the view where it's visible (delts on front, rear delts +
-   traps + lats on back, etc). Forearms and legs light up on both views since those
-   muscles are trained/visible from either side. Takes a plain array/Set of muscle-name
-   strings (PROGRAM day.mus / program.days[].mus already have this shape) — no DOM or
-   state dependency, so it's safe to call from any render function. */
+   An anatomical figure, not a stack of capsules: a base silhouette with individually
+   shadeable muscle regions laid over it. Every shape is authored on the LEFT half of a
+   100x210 canvas and mirrored with a transform, so each muscle is defined once and the
+   figure cannot drift out of symmetry.
+
+   Regions are drawn on the view where the muscle is actually visible — pecs and abs on the
+   front, lats and traps on the back, delts on both (front vs rear head). Forearms and legs
+   appear on both because they are trained and seen from either side.
+
+   Takes a plain array/Set of muscle-name strings (PROGRAM day.mus and program.days[].mus
+   already have that shape). No DOM or state dependency, so any render function can call it.
+   colorFn(muscleName) returns a CSS colour for that region, or null for the base tint;
+   with no colorFn it falls back to a binary "is this muscle trained" accent fill. */
+const BODY_HALF={
+  /* upper arm: biceps on the front figure, triceps on the back */
+  arm:"M31,45 C25,47 22,55 21,64 C20,71 21,77 24,78 C28,77 30,70 31,62 C32,55 33,49 31,45 Z",
+  forearm:"M23,79 C19,84 17,93 17,101 C17,107 19,110 22,109 C25,106 26,97 26,89 C26,84 25,80 23,79 Z",
+  delt:"M37,31 C29,32 24,37 23,44 C23,48 25,51 28,50 C32,46 35,39 38,34 Z",
+  pec:"M41,36 C45,34 48,36 49,40 L49,53 C45,56 41,54 39,50 C37,45 38,39 41,36 Z",
+  lat:"M35,42 C31,50 32,62 36,72 C39,78 44,80 48,79 L48,46 C44,43 39,41 35,42 Z",
+  trapBack:"M42,27 C46,25 49,25 50,25 L50,58 C46,56 42,50 40,42 C39,35 40,30 42,27 Z",
+  abs:"M42,55 C46,53 50,53 50,53 L50,80 C46,81 43,79 42,75 Z",
+  glute:"M38,88 C44,85 50,85 50,86 L50,103 C44,105 39,102 37,97 C36,93 36,90 38,88 Z",
+  thigh:"M39,96 C34,106 34,122 36,136 C37,143 41,146 44,144 C47,134 48,116 47,104 C46,98 43,95 39,96 Z",
+  calf:"M38,150 C34,159 34,171 36,181 C38,188 42,189 44,186 C46,177 46,163 44,154 C43,150 40,148 38,150 Z"
+};
+const BODY_BASE=
+  "<ellipse cx='50' cy='13' rx='8.4' ry='10.4' class='base'/>"+
+  "<path class='base' d='M45,21 L45,28 C47,30 53,30 55,28 L55,21 Z'/>"+
+  /* trunk: shoulders -> lat flare -> waist -> hips, as one closed silhouette */
+  "<path class='base' d='M50,24 C59,24 65,27 68,33 C72,39 72,49 70,57 C68,67 64,73 63,81"+
+  " C62,88 63,92 63,97 L37,97 C37,92 38,88 37,81 C36,73 32,67 30,57 C28,49 28,39 32,33"+
+  " C35,27 41,24 50,24 Z'/>"+
+  /* arms and legs as base limbs, shaded regions sit on top of these */
+  "<path class='base' d='M32,44 C24,47 20,56 19,66 C18,76 19,84 17,93 C16,101 16,108 18,111"+
+  " C22,113 25,110 25,105 C25,96 27,88 29,80 C31,70 34,58 35,48 Z'/>"+
+  "<path class='base' d='M68,44 C76,47 80,56 81,66 C82,76 81,84 83,93 C84,101 84,108 82,111"+
+  " C78,113 75,110 75,105 C75,96 73,88 71,80 C69,70 66,58 65,48 Z'/>"+
+  "<path class='base' d='M37,95 C33,108 33,126 35,140 C36,150 35,164 34,176 C33,186 34,193 37,194"+
+  " C42,194 44,190 44,183 C44,170 46,156 47,142 C48,128 49,110 48,96 Z'/>"+
+  "<path class='base' d='M63,95 C67,108 67,126 65,140 C64,150 65,164 66,176 C67,186 66,193 63,194"+
+  " C58,194 56,190 56,183 C56,170 54,156 53,142 C52,128 51,110 52,96 Z'/>";
 function bodyHeatmapSVG(muscles,colorFn){
   const set=new Set(Array.isArray(muscles)?muscles:[...(muscles||[])]);
-  // colorFn(muscleName) -> CSS color to paint that region, or null for the base tint.
-  // Default (no colorFn) is the binary "which muscles are trained" fill in the accent.
   const fn=colorFn||(name=>set.has(name)?"var(--accent)":null);
-  const p=name=>{ const c=fn(name); return c?" style='fill:"+c+";stroke:"+c+"'":""; };
-  const limbs=(muscle)=>
-    "<rect x='12' y='46' width='12' height='32' rx='6' class='reg'"+p(muscle)+"/><rect x='66' y='46' width='12' height='32' rx='6' class='reg'"+p(muscle)+"/>"+ // upper arms
-    "<rect x='10' y='80' width='11' height='30' rx='5' class='reg'"+p("Forearms")+"/><rect x='69' y='80' width='11' height='30' rx='5' class='reg'"+p("Forearms")+"/>"+ // forearms
-    "<rect x='29' y='84' width='32' height='14' rx='7' class='base'/>"+ // waist/hip base
-    "<rect x='30' y='100' width='14' height='40' rx='7' class='reg'"+p("Legs")+"/><rect x='46' y='100' width='14' height='40' rx='7' class='reg'"+p("Legs")+"/>"+ // thighs
-    "<rect x='31' y='142' width='12' height='34' rx='6' class='reg'"+p("Legs")+"/><rect x='47' y='142' width='12' height='34' rx='6' class='reg'"+p("Legs")+"/>"; // calves
-  const head="<ellipse cx='45' cy='14' rx='10' ry='12' class='base'/><rect x='40' y='24' width='10' height='7' rx='3' class='base'/>";
-  const front="<svg viewBox='0 0 90 190'>"+head+
-    "<circle cx='24' cy='40' r='8' class='reg'"+p("Shoulders")+"/><circle cx='66' cy='40' r='8' class='reg'"+p("Shoulders")+"/>"+
-    "<rect x='31' y='35' width='28' height='24' rx='6' class='reg'"+p("Chest")+"/>"+
-    "<rect x='34' y='60' width='22' height='26' rx='6' class='reg'"+p("Core")+"/>"+
-    limbs("Biceps")+"</svg>";
-  const back="<svg viewBox='0 0 90 190'>"+head+
-    "<polygon points='45,23 27,44 63,44' class='reg'"+p("Traps")+"/>"+
-    "<circle cx='24' cy='40' r='8' class='reg'"+p("Rear delts")+"/><circle cx='66' cy='40' r='8' class='reg'"+p("Rear delts")+"/>"+
-    "<rect x='30' y='42' width='30' height='42' rx='8' class='reg'"+p("Back")+"/>"+
-    limbs("Triceps")+"</svg>";
-  return "<div class='bodyhm'><div class='bhFig'><div class='bhLbl'>Front</div>"+front+"</div><div class='bhFig'><div class='bhLbl'>Back</div>"+back+"</div></div>";
+  /* One region = the shape plus its mirror. Written once, so the two halves cannot diverge. */
+  const reg=(shape,muscle)=>{
+    const c=fn(muscle), st=c?" style='fill:"+c+";stroke:"+c+"'":"";
+    const d=BODY_HALF[shape];
+    return "<path class='reg' d='"+d+"'"+st+"/>"+
+           "<g transform='translate(100,0) scale(-1,1)'><path class='reg' d='"+d+"'"+st+"/></g>";
+  };
+  const wrap=inner=>"<svg viewBox='0 0 100 205' preserveAspectRatio='xMidYMid meet'>"+BODY_BASE+inner+"</svg>";
+  const front=wrap(
+    reg("delt","Shoulders")+reg("pec","Chest")+reg("abs","Core")+
+    reg("arm","Biceps")+reg("forearm","Forearms")+
+    reg("thigh","Legs")+reg("calf","Legs"));
+  const back=wrap(
+    reg("trapBack","Traps")+reg("delt","Rear delts")+reg("lat","Back")+
+    reg("arm","Triceps")+reg("forearm","Forearms")+
+    reg("glute","Legs")+reg("thigh","Legs")+reg("calf","Legs"));
+  return "<div class='bodyhm'><div class='bhFig'><div class='bhLbl'>Front</div>"+front+"</div>"+
+         "<div class='bhFig'><div class='bhLbl'>Back</div>"+back+"</div></div>";
+}
+
+/* ---------- strength standards ----------
+   The app answers "am I recovered" and "am I progressing" but never "am I actually strong".
+   This fills that in from data already in state: per-lift e1RM in state.history, plus
+   bodyweight and sex from the profile.
+
+   Thresholds are the widely published bodyweight-multiple standards (the Beginner ->
+   Elite ladder used by strength-standard calculators), stored as ratios rather than a
+   weight table so they stay compact and readable. Only lifts with real, agreed standards
+   are scored — a hack squat or an RDL has no meaningful 1RM standard, and inventing one
+   would make the whole card untrustworthy.
+
+   Bodyweight is corrected allometrically: strength scales roughly with mass^(2/3), so a
+   110 kg lifter benching 1.5x bodyweight is not the same achievement as a 60 kg lifter
+   doing it. Requirements are scaled by (reference / bodyweight)^(1/3), which is the
+   standard adjustment and is exact at the reference weight. */
+const STRENGTH_LEVELS=["Beginner","Novice","Intermediate","Advanced","Elite"];
+const STRENGTH_STANDARDS={
+  M:{ref:75,lifts:{
+    "Bench Press":       [0.75,1.00,1.25,1.75,2.00],
+    "Back Squat":        [0.75,1.25,1.50,2.25,2.75],
+    "Deadlift":          [1.00,1.50,2.00,2.75,3.25],
+    "Overhead Press":    [0.40,0.60,0.80,1.10,1.40],
+    "Barbell Row":       [0.50,0.75,1.00,1.40,1.75]}},
+  F:{ref:62,lifts:{
+    "Bench Press":       [0.40,0.60,0.80,1.05,1.40],
+    "Back Squat":        [0.60,0.90,1.25,1.75,2.25],
+    "Deadlift":          [0.70,1.10,1.50,2.10,2.60],
+    "Overhead Press":    [0.25,0.40,0.55,0.75,1.00],
+    "Barbell Row":       [0.35,0.50,0.70,0.95,1.25]}}
+};
+/* Which standard, if any, a logged exercise name counts towards. Deliberately strict:
+   machine and supported variants are excluded because their standards differ, and a
+   generous match here would silently inflate the score. */
+function strengthLiftFor(name){
+  const n=String(name||"").toLowerCase();
+  if(/hack|smith|machine|leg press|pendulum|belt squat/.test(n))return null;
+  if(/romanian|rdl|stiff|deficit|sumo|trap bar|rack pull/.test(n))return null;
+  if(/incline|decline|close-?grip|floor|dumbbell|db /.test(n))return null;
+  if(/bench press/.test(n))return "Bench Press";
+  if(/back squat|barbell squat|^squat|\bsquats?\b/.test(n))return "Back Squat";
+  if(/deadlift/.test(n))return "Deadlift";
+  if(/overhead press|military press|standing.*press|\bohp\b/.test(n))return "Overhead Press";
+  if(/(barbell|pendlay|bent-?over).*row/.test(n))return "Barbell Row";
+  return null;
+}
+/* 0-100 across the whole Beginner->Elite ladder, linear inside each band. Below the
+   Beginner threshold scales from zero rather than clamping, so early progress still moves
+   the number; above Elite it clamps at 100. */
+function strengthScoreFor(lift,e1rm,bodyweight,sex){
+  const tbl=STRENGTH_STANDARDS[String(sex||"M").toUpperCase()==="F"?"F":"M"];
+  const bands=tbl.lifts[lift]; const bw=+bodyweight;
+  if(!bands||!(e1rm>0)||!(bw>0))return null;
+  const adj=Math.pow(tbl.ref/bw,1/3);
+  const need=bands.map(r=>r*bw*adj);
+  if(e1rm<need[0])return {score:Math.max(0,Math.round(e1rm/need[0]*20)),level:STRENGTH_LEVELS[0],next:need[0]};
+  for(let i=0;i<need.length-1;i++){
+    if(e1rm<need[i+1]){
+      const within=(e1rm-need[i])/(need[i+1]-need[i]);
+      return {score:Math.round((i+within)*25),level:STRENGTH_LEVELS[i],next:need[i+1]};
+    }
+  }
+  return {score:100,level:"Elite",next:null};
 }

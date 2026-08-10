@@ -130,7 +130,10 @@ function homePlanSets(day){
   const di=PROGRAM.indexOf(day);
   return day.ex.reduce((a,e,ei)=>a+targetSets(di>=0?curOpt(di,ei).r:e.opts[0].r),0);
 }
-function homeRing(pct,label){
+/* `sub` overrides the caption under the number. The ring is reused outside the "how much of
+   today is done" context it was written for — the strength card shows a level score, where
+   the word "done" is meaningless. */
+function homeRing(pct,label,sub){
   const p=Math.max(0,Math.min(100,pct||0)), R=31, C=2*Math.PI*R, off=C*(1-p/100);
   return "<div class='homeProgress'><svg viewBox='0 0 74 74'><circle cx='37' cy='37' r='"+R+"' fill='none' stroke='rgba(255,255,255,.14)' stroke-width='7'/><circle cx='37' cy='37' r='"+R+"' fill='none' stroke='var(--accent)' stroke-width='7' stroke-linecap='round' stroke-dasharray='"+C.toFixed(1)+"' stroke-dashoffset='"+off.toFixed(1)+"' transform='rotate(-90 37 37)'/></svg><div class='num'>"+esc(label||p+"%")+"<span>"+(label?"day":"done")+"</span></div></div>";
 }
@@ -148,7 +151,7 @@ function homeExercisePreviewLegacy(di,expanded){
   let rows="";
   day.ex.slice(0,max).forEach((exo,ei)=>{
     const o=curOpt(di,ei), done=homeDayDone(di,ei), muscle=exFor(o,exo.m), sets=targetSets(o.r);
-    rows+="<div class='homeEx2"+(done?" done":"")+"' data-d='"+di+"' data-e='"+ei+"'><div class='homeExNum'>"+(done?"OK":(ei+1))+"</div><img class='homeExThumb' src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\"><div class='homeExMid'><div class='nm'>"+esc(o.n)+"</div><div class='meta'>"+sets+" sets · "+esc(o.r)+" · "+esc(muscle)+"</div></div><div class='homeExView'>View</div></div>";
+    rows+="<div class='homeEx2"+(done?" done":"")+"' data-d='"+di+"' data-e='"+ei+"'><div class='homeExNum'>"+(done?"OK":(ei+1))+"</div><img alt='' class='homeExThumb' src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\"><div class='homeExMid'><div class='nm'>"+esc(o.n)+"</div><div class='meta'>"+sets+" sets · "+esc(o.r)+" · "+esc(muscle)+"</div></div><div class='homeExView'>View</div></div>";
   });
   return rows;
 }
@@ -474,7 +477,7 @@ function homeExercisePreview(di,expanded){
     const o=curOpt(di,ei),done=homeDayDone(di,ei),target=smartTargetFor(di,ei,null),sets=target?target.sets:targetSets(o.r);
     return "<div class='homeEx2 ciTimelineRow"+(done?" done":"")+"' data-d='"+di+"' data-e='"+ei+"'>"+
       "<div class='ciTimelineRail'><span>"+(done?"✓":(ei+1))+"</span></div>"+
-      "<img class='homeExThumb' loading='lazy' decoding='async' src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\">"+
+      "<img alt='' class='homeExThumb' loading='lazy' decoding='async' src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\">"+
       "<div class='homeExMid'><div class='nm'>"+esc(o.n)+"</div><div class='meta'>"+esc(exFor(o,exo.m))+" | "+sets+" sets | "+esc(target?target.reps:o.r)+" reps</div><div class='ciTarget'>"+(target?esc(target.load+" | "+target.rir+" RIR"):"Target "+esc(o.r))+"</div></div>"+
       "<div class='ciRecoveryTag' style='--rec-color:"+recoveryColorFor(exo.m)+"'><b>"+muscleRecovery(exo.m).score+"</b><span>rec</span></div><div class='homeExView'>›</div></div>";
   }).join("");
@@ -540,7 +543,6 @@ function renderPlan(){
     else if(act==="readiness")openReadiness();
     else if(act==="progress")nav("stats");
     else if(act==="exercises")nav("exercises");
-    else if(act==="settings")nav("more");
     else if(act==="toggle"){state.homeExpanded=!state.homeExpanded;save();renderPlan();}
     else if(act==="editday"){logCustom=null;openDayEditor(+b.dataset.di);}
     else if(act==="smartplan")openAdaptivePlan(di);

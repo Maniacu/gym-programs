@@ -8,7 +8,7 @@ function progInfo(pid){ const p=PROGRAMS[pid], cur=pid===activeProg; document.ge
     p.days.map(d=>{
       const setsTotal=d.ex.reduce((a,x)=>a+targetSets(x.opts[0].r),0);
       return "<h3 style='margin:16px 2px 8px'>"+esc(d.day)+" — "+esc(d.title)+" <span style='color:var(--muted);font-weight:400;font-size:12px'>· "+d.ex.length+" ex · "+setsTotal+" sets</span></h3>"+
-        d.ex.map(x=>{ const o=x.opts[0]; return "<div class='opt' data-pex data-n='"+escAttr(o.n)+"' data-img='"+escAttr(o.img)+"' data-cue='"+escAttr(o.cue||"")+"' data-r='"+escAttr(o.r)+"' data-m='"+escAttr(x.m)+"'><img src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(x.m)+" · "+esc(o.r)+"</div></div></div>"; }).join("");
+        d.ex.map(x=>{ const o=x.opts[0]; return "<div class='opt' data-pex data-n='"+escAttr(o.n)+"' data-img='"+escAttr(o.img)+"' data-cue='"+escAttr(o.cue||"")+"' data-r='"+escAttr(o.r)+"' data-m='"+escAttr(x.m)+"'><img alt='' src='"+escAttr(o.img)+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(x.m)+" · "+esc(o.r)+"</div></div></div>"; }).join("");
     }).join("")+
     "<div class='btnrow'><button onclick=\"setProgram('"+pid+"');detDlg.close()\">"+(cur?"Go to today ▶":"Use this program")+"</button></div>";
   document.querySelectorAll("#detBody [data-pex]").forEach(el=>el.onclick=()=>previewSwapExercise({n:el.dataset.n,img:el.dataset.img,cue:el.dataset.cue,r:el.dataset.r,m:el.dataset.m}));
@@ -54,14 +54,14 @@ function renderWorkouts(){
 function editCustom(i){
   const w=state.customWorkouts[i]; if(!w)return;
   document.getElementById("detTitle").textContent=w.name;
-  const rows=w.ex.map((ex,ei)=>{ const o=ex.opts[0]; return "<div class='opt' data-e='"+ei+"'><img src='"+o.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(ex.m)+" &middot; "+esc(o.r)+"</div></div><button data-a='up' data-e='"+ei+"' "+(ei===0?"disabled":"")+">Up</button><button data-a='down' data-e='"+ei+"' "+(ei===w.ex.length-1?"disabled":"")+">Down</button><button data-a='edit' data-e='"+ei+"'>Sets</button><button data-a='rm' data-e='"+ei+"'>Remove</button></div>"; }).join("");
+  const rows=w.ex.map((ex,ei)=>{ const o=ex.opts[0]; return "<div class='opt' data-e='"+ei+"'><img alt='' src='"+o.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(o.n)+"</div><div class='s'>"+esc(ex.m)+" &middot; "+esc(o.r)+"</div></div><button data-a='up' data-e='"+ei+"' "+(ei===0?"disabled":"")+">Up</button><button data-a='down' data-e='"+ei+"' "+(ei===w.ex.length-1?"disabled":"")+">Down</button><button data-a='edit' data-e='"+ei+"'>Sets</button><button data-a='rm' data-e='"+ei+"'>Remove</button></div>"; }).join("");
   document.getElementById("detBody").innerHTML="<p style='color:var(--muted)'>"+w.ex.length+" exercises. Tap Start when your order and targets look right.</p>"+rows+
     "<div class='btnrow'><button onclick='startCustom("+i+")'>Start</button><button class='s' onclick='renameCustom("+i+")'>Rename</button></div>"+
     "<div class='btnrow'><button class='ghost' onclick='duplicateCustom("+i+")'>Duplicate</button><button class='ghost' onclick='delCustom("+i+")'>Delete</button></div>"+
     "<input id='cxq' placeholder='Search to add...' style='width:100%;height:42px;background:var(--card2);border:1px solid var(--line);border-radius:10px;color:var(--txt);padding:0 12px;margin:12px 0;font-size:15px'><div id='cxlist'></div>";
   document.querySelectorAll("#detBody [data-a]").forEach(b=>b.onclick=e=>{ e.stopPropagation(); customAction(i,b.dataset.a,+b.dataset.e); });
   const rnd=q=>{ const ql=q.toLowerCase(), list=LIB.filter(x=>!q||x.n.toLowerCase().includes(ql)).slice(0,80);
-    document.getElementById("cxlist").innerHTML=list.map(x=>"<div class='opt' data-id='"+x.id+"'><img src='"+x.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(x.n)+"</div><div class='s'>"+esc(x.cat)+" &middot; "+esc(x.eq)+"</div></div><span class='tag'>add</span></div>").join("");
+    document.getElementById("cxlist").innerHTML=list.map(x=>"<div class='opt' data-id='"+x.id+"'><img alt='' src='"+x.img+"' onerror=\"this.style.visibility='hidden'\"><div class='o'><div class='t'>"+esc(x.n)+"</div><div class='s'>"+esc(x.cat)+" &middot; "+esc(x.eq)+"</div></div><span class='tag'>add</span></div>").join("");
     document.querySelectorAll("#cxlist .opt").forEach(el=>el.onclick=()=>addCustomEx(i,el.dataset.id)); };
   const q=document.getElementById("cxq"); q.oninput=()=>rnd(q.value); rnd("");
   detDlg.showModal();

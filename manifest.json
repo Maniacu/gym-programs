@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.56.0+ota.msmgwelf",
-  "appVersion": "3.56.0",
-  "minNative": 106,
-  "filesDir": "files/msmgwelf",
-  "builtAt": "2026-08-10T00:02:37.155Z",
+  "version": "3.57.0+ota.msmhja4d",
+  "appVersion": "3.57.0",
+  "minNative": 107,
+  "filesDir": "files/msmhja4d",
+  "builtAt": "2026-08-10T00:20:24.445Z",
   "files": [
     {
       "path": "index.html",
@@ -13,8 +13,8 @@
     },
     {
       "path": "css/app.css",
-      "sha256": "f7ab7a81167146d591671f4d9be86a343f1e4a92eecb766cea752f2d8903947a",
-      "bytes": 88582
+      "sha256": "69aeda30a3604e7fa773180ed9802f73eb182e134be3ca6d1150cc8db0a151b0",
+      "bytes": 90355
     },
     {
       "path": "js/app.js",
@@ -23,12 +23,12 @@
     },
     {
       "path": "js/core/00-util.js",
-      "sha256": "8480001302be5cdee6d5f38a55c8354ed4e654faf2718b3647f7a5e7d53fe08f",
-      "bytes": 33502
+      "sha256": "363f42132a0d21a27e6a24f136a4ca1bd158d0e9d6b017c4e0ec158061cc86cf",
+      "bytes": 38397
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "bcc45cb89ddcfc7cd0f6ee4c5c0e4c02a99409cc77e84b7ac75683ce9813edd1",
+      "sha256": "df3cdd740ab29da204913c30fba3e69f88baa4ec76e66f06a5cacc0a8fa95aa6",
       "bytes": 15214
     },
     {
@@ -63,8 +63,8 @@
     },
     {
       "path": "js/features/11-swap.js",
-      "sha256": "e27fe6f2f1e9c438feb8c421788e06f92caa83d63ed027b9419a62b0f2e4d3db",
-      "bytes": 13885
+      "sha256": "24d8cae9b13910c975e7be28a3da9357733a4973048af1d70ef198357c4700ac",
+      "bytes": 13886
     },
     {
       "path": "js/features/12-coach.js",
@@ -83,13 +83,13 @@
     },
     {
       "path": "js/lib/library.js",
-      "sha256": "91393c98528437b3a1f68f5e34b8a47f1035f518a48dcd9ecd9bec80a93958cd",
-      "bytes": 705436
+      "sha256": "0da3b819029d466d61a63b93bf6045056074fc350b256e118338fdfa273d3a6e",
+      "bytes": 706327
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "8b12c0896ce5a8512e476acd8a216953f30f291b454352924407e94bed4c4ca9",
-      "bytes": 327131
+      "sha256": "9977ad710210defa65f5ecc3e4e71dde68673b79b9f5670257a62b33a1bbdde5",
+      "bytes": 327777
     },
     {
       "path": "js/views/view-exercises.js",
@@ -98,13 +98,13 @@
     },
     {
       "path": "js/views/view-more.js",
-      "sha256": "9e56e53bde7ba5c038b7c3a12713f9d61d6c277725e4b81676ef9212779f5850",
-      "bytes": 28961
+      "sha256": "8c1e486069ab9870ed46d2e3d50067078b850b7b414bb1db85c390c2f8c3b9fa",
+      "bytes": 32934
     },
     {
       "path": "js/views/view-plan.js",
-      "sha256": "e45d02150814dc4a6d6530a177391a4ac16d9fb67e4e701969aad5ff43d26d87",
-      "bytes": 51501
+      "sha256": "de60f7680bd5069f79edca59a32281179d6052cb38937f773ced1bb4d9085211",
+      "bytes": 51730
     },
     {
       "path": "js/views/view-recovery.js",
@@ -113,8 +113,8 @@
     },
     {
       "path": "js/views/view-stats.js",
-      "sha256": "b59c82c2fd2d557946f19d72b2f58a7f31cab1506473dd760e49781b867231f3",
-      "bytes": 41592
+      "sha256": "cb99acf51d585d87a7961065f7392938d9975091fa1991486ca6d5315c4b0ef4",
+      "bytes": 44570
     },
     {
       "path": "js/views/view-workouts.js",
