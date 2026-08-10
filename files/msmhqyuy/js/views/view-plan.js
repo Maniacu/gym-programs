@@ -130,7 +130,10 @@ function homePlanSets(day){
   const di=PROGRAM.indexOf(day);
   return day.ex.reduce((a,e,ei)=>a+targetSets(di>=0?curOpt(di,ei).r:e.opts[0].r),0);
 }
-function homeRing(pct,label){
+/* `sub` overrides the caption under the number. The ring is reused outside the "how much of
+   today is done" context it was written for — the strength card shows a level score, where
+   the word "done" is meaningless. */
+function homeRing(pct,label,sub){
   const p=Math.max(0,Math.min(100,pct||0)), R=31, C=2*Math.PI*R, off=C*(1-p/100);
   return "<div class='homeProgress'><svg viewBox='0 0 74 74'><circle cx='37' cy='37' r='"+R+"' fill='none' stroke='rgba(255,255,255,.14)' stroke-width='7'/><circle cx='37' cy='37' r='"+R+"' fill='none' stroke='var(--accent)' stroke-width='7' stroke-linecap='round' stroke-dasharray='"+C.toFixed(1)+"' stroke-dashoffset='"+off.toFixed(1)+"' transform='rotate(-90 37 37)'/></svg><div class='num'>"+esc(label||p+"%")+"<span>"+(label?"day":"done")+"</span></div></div>";
 }
