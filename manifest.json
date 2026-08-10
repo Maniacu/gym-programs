@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.59.0+ota.msn4ro2j",
+  "version": "3.59.0+ota.msn4s9qf",
   "appVersion": "3.59.0",
-  "minNative": 111,
-  "filesDir": "files/msn4ro2j",
-  "builtAt": "2026-08-10T11:10:46.940Z",
+  "minNative": 110,
+  "filesDir": "files/msn4s9qf",
+  "builtAt": "2026-08-10T11:11:15.015Z",
   "files": [
     {
       "path": "index.html",

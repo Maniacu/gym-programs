@@ -84,7 +84,12 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   if(has(/(hanging|lying|captain|vertical).*(leg|knee) raise|leg raise|knee raise|toes to bar|reverse crunch|hip raise/)&&m!=="Legs") return "Lower abs + hip flexors";
   if(has(/crunch|sit-?up|v-?up|jackknife|flutter|scissor kick/)) return "Abs (upper + rectus)";
   /* shoulders / delts */
-  if(has(/rear[- ]delt|rear lateral|reverse (fly|flye|machine|pec)|bent[- ]over.*(lateral|fly|flye|raise)|face pull|high pull|incline.*rear/)) return "Rear delts";
+  /* "reverse cable crossover" has to be named explicitly. It only classified correctly while
+     its slot happened to be tagged Rear delts — by muscle-tag FALLBACK, not by any rule — so
+     the same exercise dropped into a Chest slot hit the generic crossover rule below and read
+     "Inner chest (squeeze)". Name it here, above the chest rules, and the label is right
+     wherever the swap dialog puts it. */
+  if(has(/rear[- ]delt|rear lateral|reverse (fly|flye|machine|pec|cable )|reverse.*crossover|bent[- ]over.*(lateral|fly|flye|raise)|face pull|high pull|incline.*rear/)) return "Rear delts";
   if(has(/front raise|front delt|frontal raise/)) return "Front delts";
   if(has(/lateral raise|side lateral|side raise|lateral.*(cable|machine|dumbbell|band)|lateral fly/)) return "Side delts (width)";
   if(has(/upright row/)) return "Side delts + traps";
