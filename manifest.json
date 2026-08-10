@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.58.1+ota.msmihgbm",
-  "appVersion": "3.58.1",
-  "minNative": 110,
-  "filesDir": "files/msmihgbm",
-  "builtAt": "2026-08-10T00:46:58.786Z",
+  "version": "3.59.0+ota.msn4ro2j",
+  "appVersion": "3.59.0",
+  "minNative": 111,
+  "filesDir": "files/msn4ro2j",
+  "builtAt": "2026-08-10T11:10:46.940Z",
   "files": [
     {
       "path": "index.html",
@@ -23,12 +23,12 @@
     },
     {
       "path": "js/core/00-util.js",
-      "sha256": "06dfafa4326d336fcb05a1f8546f2560c92b6cd36a3021e42cd1f8f84ce45e54",
-      "bytes": 38912
+      "sha256": "1b477c6210cbe73057b21965595bd9eaf33785eccd25a6715b05d9c1d3dfcf98",
+      "bytes": 39357
     },
     {
       "path": "js/core/01-native.js",
-      "sha256": "daf82a3d9e4f5f6848552c205af08aaf65742111b47bdd4cafa88dc05fe34b7e",
+      "sha256": "d43b41cd0053a4734f06871b6593be2db94961465f3b652e391efdc52255fc11",
       "bytes": 15214
     },
     {
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "e37bfe9a19109704625c46c875bf88bea8ef953607b68500624ad7700cffee97",
-      "bytes": 328494
+      "sha256": "bf4e9f20a7b275e28f1a08944fb703a330220b0f93ec45e460872fe4df45e884",
+      "bytes": 328664
     },
     {
       "path": "js/views/view-exercises.js",

@@ -84,7 +84,12 @@ function exFor(o,m){ const n=((o&&o.n)||"").toLowerCase(), pm=(o&&o.pm)||"", has
   if(has(/(hanging|lying|captain|vertical).*(leg|knee) raise|leg raise|knee raise|toes to bar|reverse crunch|hip raise/)&&m!=="Legs") return "Lower abs + hip flexors";
   if(has(/crunch|sit-?up|v-?up|jackknife|flutter|scissor kick/)) return "Abs (upper + rectus)";
   /* shoulders / delts */
-  if(has(/rear[- ]delt|rear lateral|reverse (fly|flye|machine|pec)|bent[- ]over.*(lateral|fly|flye|raise)|face pull|high pull|incline.*rear/)) return "Rear delts";
+  /* "reverse cable crossover" has to be named explicitly. It only classified correctly while
+     its slot happened to be tagged Rear delts — by muscle-tag FALLBACK, not by any rule — so
+     the same exercise dropped into a Chest slot hit the generic crossover rule below and read
+     "Inner chest (squeeze)". Name it here, above the chest rules, and the label is right
+     wherever the swap dialog puts it. */
+  if(has(/rear[- ]delt|rear lateral|reverse (fly|flye|machine|pec|cable )|reverse.*crossover|bent[- ]over.*(lateral|fly|flye|raise)|face pull|high pull|incline.*rear/)) return "Rear delts";
   if(has(/front raise|front delt|frontal raise/)) return "Front delts";
   if(has(/lateral raise|side lateral|side raise|lateral.*(cable|machine|dumbbell|band)|lateral fly/)) return "Side delts (width)";
   if(has(/upright row/)) return "Side delts + traps";
@@ -343,6 +348,12 @@ const IC={
 "trash":"<path d=\"M4 7l16 0\" /> <path d=\"M10 11l0 6\" /> <path d=\"M14 11l0 6\" /> <path d=\"M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12\" /> <path d=\"M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3\" />",
 "user":"<path d=\"M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0\" /> <path d=\"M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2\" />"
 };
+/* The exercise library ships two frames per movement: "X.webp" and its "X_b.webp" partner,
+   which the demo alternates between. Derive the partner from whatever extension the image
+   actually carries — hardcoding one is how this broke when the library was re-encoded from
+   JPEG to WebP: the match failed, the alternate frame resolved to the SAME file, and every
+   demo played as a still with no error raised anywhere. */
+function demoAltSrc(src){ return String(src||"").replace(/(\.[a-z0-9]+)$/i,"_b$1"); }
 function icon(n,s){ const p=IC[n]; if(!p)return ""; s=s||22; return "<svg viewBox='0 0 24 24' width='"+s+"' height='"+s+"' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='display:inline-block;vertical-align:-0.18em'>"+p+"</svg>"; }
 
 /* ---------- front/back muscle silhouette (which muscles a day/program trains) ----------
