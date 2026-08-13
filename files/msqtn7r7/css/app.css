@@ -787,3 +787,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 /* The head and neck are pure silhouette with no muscle on them, so they were reading as
    near-invisible against the card. A touch more contrast than the shadeable regions. */
 .bodyhm .base{fill:var(--card2);stroke:var(--line);stroke-width:1.1}
+
+/* ---------- set row: give the WEIGHT field room to actually show a weight ----------
+   The weight input sat at flex:1, the same share as the reps input, inside a 57px track —
+   and it carries `padding:0 24px` so the − and + steppers can overlay its ends. That left
+   NINE pixels of usable text width. A two-digit weight was already clipped, a three-digit
+   one was invisible, and with text-align:center you see the middle of the number rather
+   than the start, so it is not obvious anything is missing. That is how a 900 kg dumbbell
+   dip and an 80 kg shrug ended up in the log.
+   The two fields do not need equal space: weight has to show "147.5" (5 chars), reps show
+   "12" (2). So weight gets the larger share, the steppers and their matching padding come
+   in slightly, and the fixed-width furniture either side gives up a few pixels each. */
+.setrow .no{flex:0 0 16px}
+.settag{flex:0 0 34px}
+.wstep{flex:1.8}
+.setrow .sr{flex:1}
+/* Steppers and the input padding that clears them move in together — they must stay equal
+   or the digits slide under a button. 20px is the floor: the buttons are still 46px tall,
+   so the touch target stays comfortable vertically even though it is narrow. */
+.wstep .stp{width:20px}
+.wstep input{padding:0 20px}
+.setrow .x{margin:0 -2px}
+/* The done tick and the RIR chip were 42-44px of fixed furniture each. Two pixels apiece
+   is the difference between "147.5" fitting and being clipped. */
+.setrow .ok{flex:0 0 40px;width:40px}
+.setrow .rir{flex:0 0 40px}
+/* Tabular figures so the width of a weight does not change with WHICH digits it contains —
+   otherwise 111 fits and 000 does not, which is impossible to diagnose from the gym floor. */
+.setrow input{font-variant-numeric:tabular-nums}
+/* Very narrow phones (~320px) cannot fit "147.5" at 16px however the row is divided. Rather
+   than let it clip silently — which is the failure mode that corrupted the log in the first
+   place — step the type down and let the set-type tag truncate. min-width:0 is what actually
+   lets .settag honour its flex-basis: without it a flex item will not shrink below the
+   min-content width of the word "WORK", which is why it rendered 47px against a 34px basis. */
+@media (max-width:344px){
+  .setrow input{font-size:14px}
+  .settag{min-width:0;overflow:hidden;font-size:9px}
+  /* The steppers tuck fully inside the field's own padding here. Below this width there is
+     not enough room for both a readable five-character weight and two 20px buttons, and a
+     silently truncated weight is far more damaging than a slightly tighter tap target. */
+  .wstep .stp{width:16px;font-size:15px}
+  .wstep input{padding:0 16px}
+}

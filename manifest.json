@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.59.0+ota.msqsy8f4",
+  "version": "3.59.0+ota.msqtn7r7",
   "appVersion": "3.59.0",
   "minNative": 110,
-  "filesDir": "files/msqsy8f4",
-  "builtAt": "2026-08-13T00:51:02.560Z",
+  "filesDir": "files/msqtn7r7",
+  "builtAt": "2026-08-13T01:10:28.099Z",
   "files": [
     {
       "path": "index.html",
@@ -13,8 +13,8 @@
     },
     {
       "path": "css/app.css",
-      "sha256": "69aeda30a3604e7fa773180ed9802f73eb182e134be3ca6d1150cc8db0a151b0",
-      "bytes": 90355
+      "sha256": "68034cbe0955dde3b3e68529037f3f5a984fd57a1c4ce5b3032396b82bbc7338",
+      "bytes": 93037
     },
     {
       "path": "js/app.js",
