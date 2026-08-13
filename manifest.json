@@ -1,10 +1,10 @@
 {
   "schema": 1,
-  "version": "3.59.0+ota.msoggolk",
+  "version": "3.59.0+ota.msqsy8f4",
   "appVersion": "3.59.0",
   "minNative": 110,
-  "filesDir": "files/msoggolk",
-  "builtAt": "2026-08-11T09:25:55.976Z",
+  "filesDir": "files/msqsy8f4",
+  "builtAt": "2026-08-13T00:51:02.560Z",
   "files": [
     {
       "path": "index.html",
@@ -88,8 +88,8 @@
     },
     {
       "path": "js/lib/program.js",
-      "sha256": "84189d32c75b9ccadcdfdf8e2ea83e2990832388814aeb6ee40b7eff94a969ee",
-      "bytes": 329296
+      "sha256": "f65a70df754c0f93681fd404919e2e17d462381a77d6a392f801da08f92d3993",
+      "bytes": 329547
     },
     {
       "path": "js/views/view-exercises.js",
